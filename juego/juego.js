@@ -13,6 +13,7 @@ window.onload = function() {
 	let ctx;        // contexto de trabajo
 	let idPersonaje, idSuelo, idAnimacion;   // id de la animación
 	
+	let xParado;
 	let xDerecha;
 	let xIzquierda;
 	let yArriba;
@@ -20,7 +21,7 @@ window.onload = function() {
 
 	let posicion=0;   // Posición del array 0, 1
 	
-	let miComecocos;
+	let miDD;
 	let miSuelo = {
 		posicionSueloX: 0,
 		posicionSueloY: 540,
@@ -30,15 +31,16 @@ window.onload = function() {
 	let imagen;
 	let inicial = 0;
 	
-	function Comecocos (x_, y_) {
+	function DD (x_, y_) {
 	
-	  this.x = x_;
-	  this.y = y_;
-	  this.animacionComecocos = [[0,2],[32,2],[0,34],[32,34],[0,66],[32,66],[0,96],[32,96]]; // Posiciones del sprite donde recortar cada imagen
-	  this.velocidad = 5;
-	  this.tamañoX   = 30;
-	  this.tamañoY   = 30;
-	  this.enSuelo   = false;
+		this.x = x_;
+		this.y = y_;
+		this.animacionDD = [[18,6],[68,6],[118,6]
+		]; // Posiciones del sprite donde recortar cada imagen
+		this.velocidad = 8;
+		this.tamañoX   = 13;
+		this.tamañoY   = 37;
+		this.enSuelo   = false;
 	
 	}
 
@@ -46,7 +48,19 @@ window.onload = function() {
 
 	}
 	
-	Comecocos.prototype.generaPosicionDerecha = function() {
+	DD.prototype.generaPosicionParado = function() {
+
+		this.x = this.x;
+		
+		if (this.x > TOPEDERECHA) {
+			
+			// If at edge, reset ship position and set flag.
+			this.x = TOPEDERECHA;
+			reproduciraudio();   
+		}		
+	}
+
+	DD.prototype.generaPosicionDerecha = function() {
 
 		this.x = this.x + this.velocidad;
 		
@@ -58,7 +72,7 @@ window.onload = function() {
 		}		
 	}
 
-	Comecocos.prototype.generaPosicionIzquierda = function() {
+	DD.prototype.generaPosicionIzquierda = function() {
 
 		this.x = this.x - this.velocidad;
 		
@@ -69,7 +83,7 @@ window.onload = function() {
 		}		
 	}
 
-	Comecocos.prototype.generaPosicionArriba = function() {
+	DD.prototype.generaPosicionArriba = function() {
 
 		this.y = this.y - this.velocidad;
 		
@@ -80,7 +94,7 @@ window.onload = function() {
 		}		
 	}
 
-	Comecocos.prototype.generaPosicionAbajo = function() {
+	DD.prototype.generaPosicionAbajo = function() {
 
 		this.y = this.y + this.velocidad;
 		
@@ -96,29 +110,32 @@ window.onload = function() {
 		// borramos el canvas
 		ctx.clearRect(0, 0, 600, 600);		
 		
+		if (xParado) {
+			miDD.generaPosicionParado();
+		}
 		if (xDerecha) {
-			miComecocos.generaPosicionDerecha();
+			miDD.generaPosicionDerecha();
 		}
 		if (xIzquierda) {
-			miComecocos.generaPosicionIzquierda();
+			miDD.generaPosicionIzquierda();
 		}
 		if (yArriba) {
-			miComecocos.generaPosicionArriba();
+			miDD.generaPosicionArriba();
 		}
 		if (yAbajo) {
-			miComecocos.generaPosicionAbajo();
+			miDD.generaPosicionAbajo();
 		}
 		
  		// Pintamos el comecocos
-		ctx.drawImage(miComecocos.imagen, // Imagen completa con todos los comecocos (Sprite)
-					  miComecocos.animacionComecocos[posicion][0],    // Posicion X del sprite donde se encuentra el comecocos que voy a recortar del sprite para dibujar
-					  miComecocos.animacionComecocos[posicion][1],	  // Posicion Y del sprite donde se encuentra el comecocos que voy a recortar del sprite para dibujar
-					  miComecocos.tamañoX, 		    // Tamaño X del comecocos que voy a recortar para dibujar
-					  miComecocos.tamañoY,	        // Tamaño Y del comecocos que voy a recortar para dibujar
-					  miComecocos.x,                // Posicion x de pantalla donde voy a dibujar el comecocos recortado
-					  miComecocos.y,				            // Posicion y de pantalla donde voy a dibujar el comecocos recortado
-					  miComecocos.tamañoX,		    // Tamaño X del comecocos que voy a dibujar
-					  miComecocos.tamañoY);         // Tamaño Y del comecocos que voy a dibujar			  
+		ctx.drawImage(miDD.imagen, // Imagen completa con todos los comecocos (Sprite)
+					  miDD.animacionDD[posicion][0],    // Posicion X del sprite donde se encuentra el comecocos que voy a recortar del sprite para dibujar
+					  miDD.animacionDD[posicion][1],	  // Posicion Y del sprite donde se encuentra el comecocos que voy a recortar del sprite para dibujar
+					  miDD.tamañoX, 		    // Tamaño X del comecocos que voy a recortar para dibujar
+					  miDD.tamañoY,	        // Tamaño Y del comecocos que voy a recortar para dibujar
+					  miDD.x,                // Posicion x de pantalla donde voy a dibujar el comecocos recortado
+					  miDD.y,				            // Posicion y de pantalla donde voy a dibujar el comecocos recortado
+					  miDD.tamañoX,		    // Tamaño X del comecocos que voy a dibujar
+					  miDD.tamañoY);         // Tamaño Y del comecocos que voy a dibujar			  
 	}
 
 	function pintaSuelo() {
@@ -129,12 +146,13 @@ window.onload = function() {
 	
 	function abreCierraBoca() {
 		
+		if (xParado) inicial = 0;
 		if (xDerecha) inicial = 0;
 		if (yArriba) inicial = 6;
 		if (xIzquierda) inicial = 4;
 		if (yAbajo) inicial = 2;
 
-		posicion = inicial + (posicion + 1) % 2;
+		posicion = inicial + (posicion + 1) % 3;
 		
 	}
 	
@@ -196,19 +214,17 @@ window.onload = function() {
 	ctx = canvas.getContext("2d");
 
 	imagen = new Image();
-	imagen.src="assets/srpites/spriteComecocos.png";
-	Comecocos.prototype.imagen = imagen;
+	imagen.src="assets/srpites/spriteSheet.png";
+	DD.prototype.imagen = imagen;
 
-	miComecocos = new Comecocos( x, y);		
+	miDD = new DD( x, y);		
 
 	// Lanzamos la animación
 	idPersonaje= setInterval(pintaRectangulo, 1000/30);
 	idSuelo= setInterval(pintaSuelo, 1000/30);	
 	
 	// Animación encargada de abrir y cerra la boca
-	idAnimacion = setInterval(abreCierraBoca, 1000/8);
+	idAnimacion = setInterval(abreCierraBoca, 1000/4);
 
 
 }
-
-
