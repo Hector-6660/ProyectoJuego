@@ -1,0 +1,12 @@
+* {
+    text-align: center;
+}
+#miCanvas {
+    background-image: url(assets/srpites/ciudad/10.png);
+    border: solid 1px #ccc; 
+    margin: 20px;
+    width: 600px;
+    height: 600px;
+    background-size: cover;
+    background-position: center center;
+}
