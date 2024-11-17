@@ -9,7 +9,7 @@
     let y=466;      // posición inicial y del rectángulo
     let canvas;     // variable que referencia al elemento canvas del html
     let ctx;        // contexto de trabajo
-    let idPersonaje, idSuelo, idAnimacionDerecha, idAnimacionCaDerecha, idAnimacionAgachadoDerecha, idAnimacionSaltoDerecha, idAnimacionIzquierda, idAnimacionCaIzquierda, idAnimacionAgachadoIzquierda, idAnimacionSaltoIzquierda;   // id de la animación
+    let idPersonaje, idSuelo, idAnimacionDerecha, idAnimacionCaDerecha, idAnimacionAgachadoDerecha, idAnimacionSaltoDerecha, idAnimacionCaerDerecha, idAnimacionIzquierda, idAnimacionCaIzquierda, idAnimacionAgachadoIzquierda, idAnimacionSaltoIzquierda;   // id de la animación
 
     let xParadoDerecha = true;
     let xParadoIzquierda = false;
@@ -50,6 +50,7 @@
             [124, 212] // Animación salto descendente izquierda
         ]; // Posiciones del sprite donde recortar cada imagen
         this.velocidad = 7;
+        this.velocidadX = 0;
         this.velocidadY = 0;
         this.tamañoX   = 26;
         this.tamañoY   = 74;
@@ -62,13 +63,17 @@
         if (!this.enSuelo) {
             this.velocidadY += this.gravedad;
             this.y += this.velocidadY;
+            this.x += this.velocidadX;
         }
     
         // Verificar colisión con el suelo
         if (this.y + this.tamañoY > miSuelo.posicionSueloY) {
             this.y = miSuelo.posicionSueloY - this.tamañoY;
             this.velocidadY = 0;
+            this.velocidadX = 0;
             this.enSuelo = true;
+            yArribaDerecha = false;
+            yCaerDerecha = false;
         }
     }
     
@@ -80,14 +85,16 @@
     }
 
     DD.prototype.generaPosicionDerecha = function() {
-        this.x = this.x + this.velocidad;
+        this.velocidadX = this.velocidad;
+        this.x += this.velocidadX;
         if (this.x > TOPEDERECHA) {
             this.x = TOPEDERECHA;
         }
     }
 
     DD.prototype.generaPosicionIzquierda = function() {
-        this.x = this.x - this.velocidad;
+        this.velocidadX = -this.velocidad;
+        this.x += this.velocidadX;
         if (this.x < TOPEIZQUIERDA) {
             this.x = TOPEIZQUIERDA;   
         }
@@ -108,15 +115,14 @@
             this.enSuelo = false;
         }
     }
-    
 
     function pintaRectangulo() {
         // Borramos el canvas
         ctx.clearRect(0, 0, 600, 600);
-        
+    
         miDD.actualizarGravedad();
-
-        if (xParadoDerecha) {
+    
+        if (xParadoDerecha && miDD.enSuelo) {
             miDD.generaPosicionParado();
         }
         if (xCaDerecha) {
@@ -128,21 +134,19 @@
         if (yArribaDerecha) {
             miDD.generaPosicionArriba();
         }
-        if (yAbajoDerecha) {
-            miDD.generaPosicionAbajo();
-        }
-
-        // Pintamos el comecocos
-        ctx.drawImage(miDD.imagen, // Imagen completa con todos los comecocos (Sprite)
-            miDD.animacionDD[posicion][0],    // Posicion X del sprite donde se encuentra el comecocos que voy a recortar del sprite para dibujar
-            miDD.animacionDD[posicion][1],    // Posicion Y del sprite donde se encuentra el comecocos que voy a recortar del sprite para dibujar
-            miDD.tamañoX,           // Tamaño X del comecocos que voy a recortar para dibujar
-            miDD.tamañoY,           // Tamaño Y del comecocos que voy a recortar para dibujar
-            miDD.x,                // Posicion x de pantalla donde voy a dibujar el comecocos recortado
-            miDD.y,                         // Posicion y de pantalla donde voy a dibujar el comecocos recortado
-            miDD.tamañoX,           // Tamaño X del comecocos que voy a dibujar
-            miDD.tamañoY);         // Tamaño Y del comecocos que voy a dibujar            
+    
+        // Pintamos el personaje
+        ctx.drawImage(miDD.imagen, // Imagen completa con todos los sprites
+            miDD.animacionDD[posicion][0],    // Posicion X del sprite donde se encuentra el recorte
+            miDD.animacionDD[posicion][1],    // Posicion Y del sprite donde se encuentra el recorte
+            miDD.tamañoX,           // Tamaño X del recorte
+            miDD.tamañoY,           // Tamaño Y del recorte
+            miDD.x,                // Posicion x en el canvas
+            miDD.y,                         // Posicion y en el canvas
+            miDD.tamañoX,           // Tamaño X para dibujar en el canvas
+            miDD.tamañoY);         // Tamaño Y para dibujar en el canvas
     }
+    
 
     function pintaSuelo() {
         // Pintamos el suelo
@@ -151,38 +155,43 @@
     }
 
     function DDanimaciones() {
-		let framesParado = 3;
-		let framesCaminando = 6;
-		let framesAgachado = 3;
-			
-		if (xParadoDerecha) {
-			inicial = 0;
-			posicion = inicial + (posicion + 1) % framesParado;
-		} else if (xCaDerecha) {
-			inicial = 6;
-			posicion = inicial + (posicion + 1) % framesCaminando;
+        let framesParado = 3;
+        let framesCaminando = 6;
+        let framesAgachado = 3;
+    
+        if (xParadoDerecha && miDD.enSuelo) { // Parado derecha
+            inicial = 0;
+            posicion = inicial + (posicion + 1) % framesParado;
+        } else if (xCaDerecha) { // Caminar derecha
+            inicial = 6;
+            posicion = inicial + (posicion + 1) % framesCaminando;
             miDD.tamañoX = 58;
             miDD.tamañoY = 74;
-        } else if (yArribaDerecha) {
+        } else if (!miDD.enSuelo && miDD.velocidadY < -5) { // Salto ascendente
             inicial = 24;
-            posicion = inicial + (posicion + 1) % 1;
+            posicion = inicial;
             miDD.tamañoX = 50;
             miDD.tamañoY = 84;
-		} else if (yAbajoDerecha) {
-			inicial = 18;
-			posicion = inicial + (posicion + 1) % framesAgachado;
+        } else if (!miDD.enSuelo && miDD.velocidadY >= -5) { // Salto descendente
+            inicial = 25;
+            posicion = inicial;
+            miDD.tamañoX = 50;
+            miDD.tamañoY = 74;
+        } else if (yAbajoDerecha) { // Agachado derecha
+            inicial = 18;
+            posicion = inicial + (posicion + 1) % framesAgachado;
             miDD.tamañoX = 36;
             miDD.tamañoY = 74;
-        } else if (xParadoIzquierda) {
+        } else if (xParadoIzquierda && miDD.enSuelo) { // Parado izquierda
             inicial = 3;
-			posicion = inicial + (posicion + 1) % framesParado;
-		} else if (xCaIzquierda) {
-			inicial = 12;
-			posicion = inicial + (posicion + 1) % framesCaminando;
+            posicion = inicial + (posicion + 1) % framesParado;
+        } else if (xCaIzquierda) { // Caminando izquierda
+            inicial = 12;
+            posicion = inicial + (posicion + 1) % framesCaminando;
             miDD.tamañoX = 58;
             miDD.tamañoY = 74;
-		}
-    }
+        }
+    }      
 
     function activaMovimiento(evt) {
         switch (evt.keyCode) {
@@ -190,9 +199,9 @@
             case 39:
                 xParadoDerecha = false;
                 xCaDerecha = true;
-				if (!idAnimacionCaDerecha) {
-					idAnimacionCaDerecha = setInterval(DDanimaciones, 1000 / 7);
-				}
+                if (!idAnimacionCaDerecha) {
+                    idAnimacionCaDerecha = setInterval(DDanimaciones, 1000 / 7);
+                }
                 break;
             // Izquierda
             case 37:
@@ -200,69 +209,92 @@
                 xParadoIzquierda = false;
                 xCaIzquierda = true;
                 if (!idAnimacionCaIzquierda) {
-					idAnimacionCaIzquierda = setInterval(DDanimaciones, 1000 / 7);
-				}
+                    idAnimacionCaIzquierda = setInterval(DDanimaciones, 1000 / 7);
+                }
                 break;
             // Arriba
             case 38:
-                xParadoDerecha = false;
-                yArribaDerecha = true;
-				if (!idAnimacionSaltoDerecha) {
-					idAnimacionSaltoDerecha = setInterval(DDanimaciones, 1000 / 1);
-				}
+                if (miDD.enSuelo) {  // Solo saltar si está en el suelo
+                    xParadoDerecha = false;
+                    xCaDerecha = false;
+                    yArribaDerecha = true;
+                    miDD.generaPosicionArriba();
+                    if (!idAnimacionSaltoDerecha) {
+                        idAnimacionSaltoDerecha = setInterval(DDanimaciones, 1000 / 1);
+                    }
+                }
                 break;
             // Abajo
             case 40:
                 xParadoDerecha = false;
                 yAbajoDerecha = true;
-				if (!idAnimacionAgachadoDerecha) {
-					idAnimacionAgachadoDerecha = setInterval(DDanimaciones, 1000 / 4);
-				}
+                if (!idAnimacionAgachadoDerecha) {
+                    idAnimacionAgachadoDerecha = setInterval(DDanimaciones, 1000 / 4);
+                }
                 break;
         }
     }
-
+    
     function desactivaMovimiento(evt) {
         switch (evt.keyCode) {
             // Derecha
             case 39:
                 xCaDerecha = false;
-				if (!xCaDerecha) {
-					clearInterval(idAnimacionCaDerecha);
-					idAnimacionCaDerecha = null;
-				}
-                xParadoDerecha = !xCaIzquierda && !yArribaDerecha && !yAbajoDerecha;
+                if (!xCaDerecha) {
+                    clearInterval(idAnimacionCaDerecha);
+                    idAnimacionCaDerecha = null;
+                    miDD.velocidadX = 0;
+                }
+                if (!miDD.enSuelo && miDD.velocidadY >= -5) {
+                    yCaerDerecha = false;
+                    xParadoDerecha = true;
+                }
+                xParadoIzquierda = false;
+                xParadoDerecha = !xCaIzquierda && !yArribaDerecha && !yAbajoDerecha && miDD.enSuelo;
                 break;
             // Izquierda
             case 37:
                 xCaIzquierda = false;
                 if (!xCaIzquierda) {
-					clearInterval(idAnimacionCaIzquierda);
-					idAnimacionCaIzquierda = null;
-				}
-                xParadoIzquierda = true;
+                    clearInterval(idAnimacionCaIzquierda);
+                    idAnimacionCaIzquierda = null;
+                    miDD.velocidadX = 0;
+                }
+                if (!miDD.enSuelo && miDD.velocidadY >= -5) {
+                    yCaerDerecha = true;
+                    xParadoDerecha = true;
+                }
+                xParadoIzquierda = miDD.enSuelo;
                 xParadoDerecha = false;
-                break; 
+                break;
             // Arriba
             case 38:
                 yArribaDerecha = false;
-				if (!yArribaDerecha) {
-					clearInterval(idAnimacionSaltoDerecha);
-					idAnimacionSaltoDerecha = null;
-				}
+                if (!yArribaDerecha) {
+                    clearInterval(idAnimacionSaltoDerecha);
+                    idAnimacionSaltoDerecha = null;
+                }
+                if (!miDD.enSuelo && miDD.velocidadY >= -5) {
+                    yCaerDerecha = true;
+                    xParadoDerecha = true;
+                }
                 xParadoDerecha = !xCaDerecha && !xCaIzquierda && !yAbajoDerecha;
                 break;
             // Abajo
             case 40:
                 yAbajoDerecha = false;
-				if (!yAbajoDerecha) {
-					clearInterval(idAnimacionAgachadoDerecha);
-					idAnimacionAgachadoDerecha = null;
-				}
-                xParadoDerecha = !xCaDerecha && !xCaIzquierda && !yArribaDerecha;
+                if (!yAbajoDerecha) {
+                    clearInterval(idAnimacionAgachadoDerecha);
+                    idAnimacionAgachadoDerecha = null;
+                }
+                if (!miDD.enSuelo && miDD.velocidadY >= -5) {
+                    yCaerDerecha = true;
+                    xParadoDerecha = true;
+                }
+                xParadoDerecha = !xCaDerecha && !xCaIzquierda && !yArribaDerecha && miDD.enSuelo;
                 break;
         }
-    }   
+    }     
 
     document.addEventListener("keydown", activaMovimiento, false);
     document.addEventListener("keyup", desactivaMovimiento, false); 

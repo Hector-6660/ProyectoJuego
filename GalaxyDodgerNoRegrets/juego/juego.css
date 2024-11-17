@@ -3,7 +3,7 @@
 }
 #miCanvas {
     background-image: url(assets/srpites/ciudad/10.png);
-    border: solid 1px #ccc; 
+    border: inset 10px #ccc; 
     margin: 20px;
     width: 600px;
     height: 600px;
