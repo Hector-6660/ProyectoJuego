@@ -1,5 +1,7 @@
 * {
+    background-color: black;
     text-align: center;
+    color: white;
 }
 #miCanvas {
     background-image: url(assets/srpites/ciudad/10.png);

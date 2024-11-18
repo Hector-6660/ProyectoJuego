@@ -64,6 +64,7 @@
             this.velocidadY += this.gravedad;
             this.y += this.velocidadY;
             this.x += this.velocidadX;
+            console.log(miDD.velocidadX);
         }
     
         // Verificar colisión con el suelo
@@ -104,6 +105,9 @@
         if (this.enSuelo) {
             this.velocidadY = -28;
             this.enSuelo = false;
+        }
+        if (this.x > TOPEDERECHA) {
+            this.x = TOPEDERECHA;
         }
     }    
 
@@ -167,12 +171,12 @@
             posicion = inicial + (posicion + 1) % framesCaminando;
             miDD.tamañoX = 58;
             miDD.tamañoY = 74;
-        } else if (!miDD.enSuelo && miDD.velocidadY < -5) { // Salto ascendente
+        } else if (!miDD.enSuelo && miDD.velocidadY < -5) { // Salto ascendente derecha
             inicial = 24;
             posicion = inicial;
             miDD.tamañoX = 50;
             miDD.tamañoY = 84;
-        } else if (!miDD.enSuelo && miDD.velocidadY >= -5) { // Salto descendente
+        } else if (!miDD.enSuelo && miDD.velocidadY >= -5) { // Salto descendente derecha
             inicial = 25;
             posicion = inicial;
             miDD.tamañoX = 50;
@@ -190,6 +194,16 @@
             posicion = inicial + (posicion + 1) % framesCaminando;
             miDD.tamañoX = 58;
             miDD.tamañoY = 74;
+        } else if (!miDD.enSuelo && miDD.velocidadY < -5 && miDD.velocidadX < 0) { // Salto ascendente izquierda
+            inicial = 26;
+            posicion = inicial;
+            miDD.tamañoX = 50;
+            miDD.tamañoY = 84;
+        } else if (!miDD.enSuelo && miDD.velocidadY >= -5 && miDD.velocidadX < 0) { // Salto descendente izquierda
+            inicial = 27;
+            posicion = inicial;
+            miDD.tamañoX = 50;
+            miDD.tamañoY = 74;
         }
     }      
 
@@ -199,6 +213,13 @@
             case 39:
                 xParadoDerecha = false;
                 xCaDerecha = true;
+                if (!miDD.enSuelo) {
+                    yCaerDerecha = true;
+                    miDD.velocidad = 3;
+                    console.log(miDD.velocidadX);
+                } else {
+                    miDD.velocidad = 7;
+                }
                 if (!idAnimacionCaDerecha) {
                     idAnimacionCaDerecha = setInterval(DDanimaciones, 1000 / 7);
                 }
@@ -208,13 +229,19 @@
                 xParadoDerecha = false;
                 xParadoIzquierda = false;
                 xCaIzquierda = true;
+                if (!miDD.enSuelo) {
+                    yCaerIzquierda = true;
+                    miDD.velocidad = 3;
+                } else {
+                    miDD.velocidad = 7;
+                }
                 if (!idAnimacionCaIzquierda) {
                     idAnimacionCaIzquierda = setInterval(DDanimaciones, 1000 / 7);
                 }
                 break;
             // Arriba
             case 38:
-                if (miDD.enSuelo) {  // Solo saltar si está en el suelo
+                if (miDD.enSuelo) {
                     xParadoDerecha = false;
                     xCaDerecha = false;
                     yArribaDerecha = true;
@@ -276,6 +303,9 @@
                 }
                 if (!miDD.enSuelo && miDD.velocidadY >= -5) {
                     yCaerDerecha = true;
+                    xParadoDerecha = true;
+                } else if (miDD.enSuelo && miDD.velocidadY >= -5 && miDD.velocidadX < 0) {
+                    yCaerIzquierda = true;
                     xParadoDerecha = true;
                 }
                 xParadoDerecha = !xCaDerecha && !xCaIzquierda && !yAbajoDerecha;
