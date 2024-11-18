@@ -171,12 +171,12 @@
             posicion = inicial + (posicion + 1) % framesCaminando;
             miDD.tamañoX = 58;
             miDD.tamañoY = 74;
-        } else if (!miDD.enSuelo && miDD.velocidadY < -5) { // Salto ascendente derecha
+        } else if (yArribaDerecha && !miDD.enSuelo && miDD.velocidadY < -5) { // Salto ascendente derecha
             inicial = 24;
             posicion = inicial;
             miDD.tamañoX = 50;
             miDD.tamañoY = 84;
-        } else if (!miDD.enSuelo && miDD.velocidadY >= -5) { // Salto descendente derecha
+        } else if (yCaerDerecha && !miDD.enSuelo && miDD.velocidadY >= -5) { // Salto descendente derecha
             inicial = 25;
             posicion = inicial;
             miDD.tamañoX = 50;
@@ -194,14 +194,19 @@
             posicion = inicial + (posicion + 1) % framesCaminando;
             miDD.tamañoX = 58;
             miDD.tamañoY = 74;
-        } else if (!miDD.enSuelo && miDD.velocidadY < -5 && miDD.velocidadX < 0) { // Salto ascendente izquierda
+        } else if (yArribaIzquierda && !miDD.enSuelo && miDD.velocidadY < -5 && miDD.velocidadX < 0) { // Salto ascendente izquierda
             inicial = 26;
             posicion = inicial;
             miDD.tamañoX = 50;
             miDD.tamañoY = 84;
-        } else if (!miDD.enSuelo && miDD.velocidadY >= -5 && miDD.velocidadX < 0) { // Salto descendente izquierda
+        } else if (yCaerIzquierda && !miDD.enSuelo && miDD.velocidadY >= -5 && miDD.velocidadX < 0) { // Salto descendente izquierda
             inicial = 27;
             posicion = inicial;
+            miDD.tamañoX = 50;
+            miDD.tamañoY = 74;
+        } else if (yAbajoIzquierda) { // Agachado derecha
+            inicial = 21;
+            posicion = inicial + (posicion + 1) % framesAgachado;
             miDD.tamañoX = 50;
             miDD.tamañoY = 74;
         }
@@ -211,32 +216,45 @@
         switch (evt.keyCode) {
             // Derecha
             case 39:
-                xParadoDerecha = false;
-                xCaDerecha = true;
-                if (!miDD.enSuelo) {
-                    yCaerDerecha = true;
-                    miDD.velocidad = 3;
-                    console.log(miDD.velocidadX);
-                } else {
+                if (miDD.enSuelo) {
                     miDD.velocidad = 7;
-                }
-                if (!idAnimacionCaDerecha) {
-                    idAnimacionCaDerecha = setInterval(DDanimaciones, 1000 / 7);
+                    if (xCaIzquierda) {
+                        xCaDerecha = false;
+                        xParadoIzquierda = true;
+                        miDD.velocidad = 0;
+                    } else {
+                        xParadoDerecha = false;
+                        xCaDerecha = true;
+                        if (!idAnimacionCaDerecha) {
+                            idAnimacionCaDerecha = setInterval(DDanimaciones, 1000 / 7);
+                        }
+                    }
+                } else if (!miDD.enSuelo) {
+                    yCaerDerecha = true;
+                    miDD.velocidadX = 3;
+                    console.log(miDD.velocidadX);
                 }
                 break;
             // Izquierda
             case 37:
-                xParadoDerecha = false;
-                xParadoIzquierda = false;
-                xCaIzquierda = true;
-                if (!miDD.enSuelo) {
-                    yCaerIzquierda = true;
-                    miDD.velocidad = 3;
-                } else {
+                if (miDD.enSuelo) {
                     miDD.velocidad = 7;
-                }
-                if (!idAnimacionCaIzquierda) {
-                    idAnimacionCaIzquierda = setInterval(DDanimaciones, 1000 / 7);
+                    if (xCaDerecha) {
+                        xCaIzquierda = false;
+                        xParadoDerecha = true;
+                        miDD.velocidad = 0;
+                    } else {
+                        xParadoDerecha = false;
+                        xParadoIzquierda = false;
+                        xCaIzquierda = true;
+                        if (!idAnimacionCaIzquierda) {
+                            idAnimacionCaIzquierda = setInterval(DDanimaciones, 1000 / 7);
+                        }
+                    }
+                } else if (!miDD.enSuelo) {
+                    yCaerIzquierda = true;
+                    miDD.velocidadX = -3;
+                    console.log(miDD.velocidadX);
                 }
                 break;
             // Arriba
@@ -249,14 +267,24 @@
                     if (!idAnimacionSaltoDerecha) {
                         idAnimacionSaltoDerecha = setInterval(DDanimaciones, 1000 / 1);
                     }
+                } else if (!miDD.enSuelo && miDD.velocidadY >= -5) {
+                    yCaerDerecha = true;
                 }
                 break;
             // Abajo
             case 40:
-                xParadoDerecha = false;
-                yAbajoDerecha = true;
-                if (!idAnimacionAgachadoDerecha) {
-                    idAnimacionAgachadoDerecha = setInterval(DDanimaciones, 1000 / 4);
+                if (xParadoDerecha) {
+                    xParadoDerecha = false;
+                    yAbajoDerecha = true;
+                    if (!idAnimacionAgachadoDerecha) {
+                        idAnimacionAgachadoDerecha = setInterval(DDanimaciones, 1000 / 4);
+                    }
+                } else if (xParadoIzquierda) {
+                    xParadoIzquierda = false;
+                    yAbajoIzquierda = true;
+                    if (!idAnimacionAgachadoIzquierda) {
+                        idAnimacionAgachadoIzquierda = setInterval(DDanimaciones, 1000 / 4);
+                    }
                 }
                 break;
         }
@@ -277,7 +305,7 @@
                     xParadoDerecha = true;
                 }
                 xParadoIzquierda = false;
-                xParadoDerecha = !xCaIzquierda && !yArribaDerecha && !yAbajoDerecha && miDD.enSuelo;
+                xParadoDerecha = !xCaIzquierda && !yArribaDerecha && !yAbajoDerecha;
                 break;
             // Izquierda
             case 37:
@@ -291,7 +319,7 @@
                     yCaerDerecha = true;
                     xParadoDerecha = true;
                 }
-                xParadoIzquierda = miDD.enSuelo;
+                xParadoIzquierda = true;
                 xParadoDerecha = false;
                 break;
             // Arriba
@@ -303,7 +331,6 @@
                 }
                 if (!miDD.enSuelo && miDD.velocidadY >= -5) {
                     yCaerDerecha = true;
-                    xParadoDerecha = true;
                 } else if (miDD.enSuelo && miDD.velocidadY >= -5 && miDD.velocidadX < 0) {
                     yCaerIzquierda = true;
                     xParadoDerecha = true;
@@ -312,16 +339,21 @@
                 break;
             // Abajo
             case 40:
-                yAbajoDerecha = false;
-                if (!yAbajoDerecha) {
-                    clearInterval(idAnimacionAgachadoDerecha);
-                    idAnimacionAgachadoDerecha = null;
+                if (yAbajoDerecha) {
+                    yAbajoDerecha = false;
+                    if (!yAbajoDerecha) {
+                        clearInterval(idAnimacionAgachadoDerecha);
+                        idAnimacionAgachadoDerecha = null;
+                    }
+                } else if (yAbajoIzquierda) {
+                    yAbajoIzquierda = false;
+                    if (!yAbajoDerecha) {
+                        clearInterval(idAnimacionAgachadoIzquierda);
+                        idAnimacionAgachadoIzquierda = null;
+                    }
+                    xParadoIzquierda = true;
                 }
-                if (!miDD.enSuelo && miDD.velocidadY >= -5) {
-                    yCaerDerecha = true;
-                    xParadoDerecha = true;
-                }
-                xParadoDerecha = !xCaDerecha && !xCaIzquierda && !yArribaDerecha && miDD.enSuelo;
+                xParadoDerecha = !xCaDerecha && !xCaIzquierda && !yArribaDerecha && !xParadoIzquierda;
                 break;
         }
     }     
