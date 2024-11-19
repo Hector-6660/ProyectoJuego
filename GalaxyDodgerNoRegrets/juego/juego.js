@@ -46,8 +46,8 @@
             [230, 112], [330, 112], [430, 112], // Animación agachado izquierda
 			[636, 102], // Animación salto ascendente derecha
             [728, 102], // Animación salto descendente derecha
-            [8, 212], // Animación salto ascendente izquierda
-            [124, 212] // Animación salto descendente izquierda
+            [8, 202], // Animación salto ascendente izquierda
+            [124, 202] // Animación salto descendente izquierda
         ]; // Posiciones del sprite donde recortar cada imagen
         this.velocidad = 7;
         this.velocidadX = 0;
@@ -64,7 +64,6 @@
             this.velocidadY += this.gravedad;
             this.y += this.velocidadY;
             this.x += this.velocidadX;
-            console.log(miDD.velocidadX);
         }
     
         // Verificar colisión con el suelo
@@ -204,7 +203,7 @@
             posicion = inicial;
             miDD.tamañoX = 50;
             miDD.tamañoY = 74;
-        } else if (yAbajoIzquierda) { // Agachado derecha
+        } else if (yAbajoIzquierda) { // Agachado izquierda
             inicial = 21;
             posicion = inicial + (posicion + 1) % framesAgachado;
             miDD.tamañoX = 50;
@@ -232,7 +231,6 @@
                 } else if (!miDD.enSuelo) {
                     yCaerDerecha = true;
                     miDD.velocidadX = 3;
-                    console.log(miDD.velocidadX);
                 }
                 break;
             // Izquierda
@@ -254,21 +252,42 @@
                 } else if (!miDD.enSuelo) {
                     yCaerIzquierda = true;
                     miDD.velocidadX = -3;
-                    console.log(miDD.velocidadX);
                 }
                 break;
             // Arriba
             case 38:
+                xParadoIzquierda = true;
                 if (miDD.enSuelo) {
-                    xParadoDerecha = false;
-                    xCaDerecha = false;
-                    yArribaDerecha = true;
-                    miDD.generaPosicionArriba();
-                    if (!idAnimacionSaltoDerecha) {
-                        idAnimacionSaltoDerecha = setInterval(DDanimaciones, 1000 / 1);
+                    if (xParadoDerecha || xCaDerecha) {
+                        xParadoDerecha = false;
+                        xCaDerecha = false;
+                        yArribaDerecha = true;
+                        if (!idAnimacionSaltoDerecha) {
+                            idAnimacionSaltoDerecha = setInterval(DDanimaciones, 1000 / 4);
+                        }
+                    } else if (xParadoIzquierda || xCaIzquierda) {
+                        xParadoDerecha = false;
+                        xCaDerecha = false;
+                        xParadoIzquierda = true;
+                        xCaIzquierda = false;
+                        yArribaIzquierda = true;
+                        if (!idAnimacionSaltoIzquierda) {
+                            idAnimacionSaltoIzquierda = setInterval(DDanimaciones, 1000 / 4);
+                        }
                     }
+                    miDD.generaPosicionArriba();
                 } else if (!miDD.enSuelo && miDD.velocidadY >= -5) {
-                    yCaerDerecha = true;
+                    if (yArribaDerecha) {
+                        yCaerDerecha = true;
+                        if (!idAnimacionSaltoDerecha) {
+                            idAnimacionSaltoDerecha = setInterval(DDanimaciones, 1000 / 4);
+                        }
+                    } else if (yArribaIzquierda) {
+                        yCaerIzquierda = true;
+                        if (!idAnimacionSaltoIzquierda) {
+                            idAnimacionSaltoIzquierda = setInterval(DDanimaciones, 1000 / 4);
+                        }
+                    }
                 }
                 break;
             // Abajo
@@ -277,19 +296,21 @@
                     xParadoDerecha = false;
                     yAbajoDerecha = true;
                     if (!idAnimacionAgachadoDerecha) {
+                        clearInterval(idAnimacionAgachadoDerecha);
                         idAnimacionAgachadoDerecha = setInterval(DDanimaciones, 1000 / 4);
                     }
                 } else if (xParadoIzquierda) {
                     xParadoIzquierda = false;
                     yAbajoIzquierda = true;
                     if (!idAnimacionAgachadoIzquierda) {
+                        clearInterval(idAnimacionAgachadoIzquierda);
                         idAnimacionAgachadoIzquierda = setInterval(DDanimaciones, 1000 / 4);
                     }
                 }
                 break;
         }
     }
-    
+
     function desactivaMovimiento(evt) {
         switch (evt.keyCode) {
             // Derecha
@@ -314,26 +335,32 @@
                     clearInterval(idAnimacionCaIzquierda);
                     idAnimacionCaIzquierda = null;
                     miDD.velocidadX = 0;
+                    xParadoIzquierda = true;
                 }
                 if (!miDD.enSuelo && miDD.velocidadY >= -5) {
-                    yCaerDerecha = true;
-                    xParadoDerecha = true;
+                    yCaerIzquierda = true;
+                    yCaerDerecha = false;
                 }
-                xParadoIzquierda = true;
-                xParadoDerecha = false;
+                if (yAbajoIzquierda) {
+                    xParadoIzquierda = false;
+                    xParadoDerecha = false;
+                } else {
+                    xParadoIzquierda = true;
+                    xParadoDerecha = !xParadoIzquierda;
+                }
                 break;
             // Arriba
             case 38:
                 yArribaDerecha = false;
-                if (!yArribaDerecha) {
-                    clearInterval(idAnimacionSaltoDerecha);
-                    idAnimacionSaltoDerecha = null;
-                }
+                yArribaIzquierda = false;
                 if (!miDD.enSuelo && miDD.velocidadY >= -5) {
                     yCaerDerecha = true;
-                } else if (miDD.enSuelo && miDD.velocidadY >= -5 && miDD.velocidadX < 0) {
+                    yArribaDerecha = false;
+                } else if (!miDD.enSuelo && miDD.velocidadY >= -5 && yAbajoIzquierda) {
                     yCaerIzquierda = true;
-                    xParadoDerecha = true;
+                } else if (!miDD.enSuelo && miDD.velocidadY >= -5 && !yArribaDerecha) {
+                    clearInterval(idAnimacionSaltoDerecha);
+                    idAnimacionSaltoDerecha = null;
                 }
                 xParadoDerecha = !xCaDerecha && !xCaIzquierda && !yAbajoDerecha;
                 break;
@@ -356,7 +383,7 @@
                 xParadoDerecha = !xCaDerecha && !xCaIzquierda && !yArribaDerecha && !xParadoIzquierda;
                 break;
         }
-    }     
+    }  
 
     document.addEventListener("keydown", activaMovimiento, false);
     document.addEventListener("keyup", desactivaMovimiento, false); 
