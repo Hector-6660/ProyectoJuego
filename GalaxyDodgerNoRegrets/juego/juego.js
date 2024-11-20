@@ -51,7 +51,7 @@
             [28, 202], // Animación salto ascendente izquierda
             [124, 202], // Animación salto descendente izquierda
             [16,412],[114,412],[216,412],[312,412], // Animación correr derecha
-            [414,426],[516,426],[614,426],[718,426] // Animación correr izquierda
+            [414,412],[516,412],[614,412],[718,412] // Animación correr izquierda
         ]; // Posiciones del sprite donde recortar cada imagen
         this.velocidad = 7;
         this.velocidadX = 0;
@@ -113,6 +113,8 @@
         }
         if (this.x > TOPEDERECHA) {
             this.x = TOPEDERECHA;
+        } else if (this.x < TOPEIZQUIERDA) {
+            this.x = TOPEIZQUIERDA;
         }
     }    
 
@@ -141,6 +143,15 @@
             miDD.generaPosicionIzquierda();
         }
         if (yArribaDerecha) {
+            miDD.generaPosicionArriba();
+
+        } if (xCorrerDerecha) {
+            miDD.generaPosicionDerecha();
+
+        } if (xCorrerIzquierda) {
+            miDD.generaPosicionIzquierda();
+            
+        } if (yArribaIzquierda) {
             miDD.generaPosicionArriba();
         }
     
@@ -338,13 +349,16 @@
                     } else if (xCaDerecha) {
                         xCorrerDerecha = true;
                         xCorrerIzquierda = false;
+                        xCaDerecha = false;
                         miDD.velocidad = 12;
+                        console.log(miDD.velocidad);  
                         if (!idAnimacionCorrerDerecha) {
                             idAnimacionCorrerDerecha = setInterval(DDanimaciones, 1000 / 10);
                         }
                     } else if (xCaIzquierda) {
                         xCorrerIzquierda = true;
                         xCorrerDerecha = false;
+                        xCaIzquierda = false;
                         miDD.velocidad = 12;
                         if (!idAnimacionCorrerIzquierda) {
                             idAnimacionCorrerIzquierda = setInterval(DDanimaciones, 1000 / 10);
@@ -447,19 +461,13 @@
                 break;
             // Correr
             case 88:
-                if (xCorrerDerecha) {
-                    xCorrerDerecha = false;
-                    xCorrerIzquierda = false;
-                    miDD.velocidad = 7;
-                    clearInterval(idAnimacionCorrerDerecha);
-                    idAnimacionCorrerDerecha = null;
-                } else if (xCorrerIzquierda) {
-                    xCorrerIzquierda = false;
-                    xCorrerDerecha = false;
-                    miDD.velocidad = 7;
-                    clearInterval(idAnimacionCorrerIzquierda);
-                    idAnimacionCorrerIzquierda = null;
-                }
+                xCorrerDerecha = false;
+                xCorrerIzquierda = false;
+                miDD.velocidad = 7;
+                clearInterval(idAnimacionCorrerDerecha);
+                idAnimacionCorrerDerecha = null;
+                clearInterval(idAnimacionCorrerIzquierda);
+                idAnimacionCorrerIzquierda = null;
         }
     }  
 
