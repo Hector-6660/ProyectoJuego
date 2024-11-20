@@ -9,7 +9,7 @@
     let y=466;      // posición inicial y del rectángulo
     let canvas;     // variable que referencia al elemento canvas del html
     let ctx;        // contexto de trabajo
-    let idPersonaje, idSuelo, idAnimacionDerecha, idAnimacionCaDerecha, idAnimacionAgachadoDerecha, idAnimacionSaltoDerecha, idAnimacionCaerDerecha, idAnimacionIzquierda, idAnimacionCaIzquierda, idAnimacionAgachadoIzquierda, idAnimacionSaltoIzquierda;   // id de la animación
+    let idPersonaje, idSuelo, idAnimacionDerecha, idAnimacionCaDerecha, idAnimacionAgachadoDerecha, idAnimacionSaltoDerecha, idAnimacionCaerDerecha, idAnimacionIzquierda, idAnimacionCaIzquierda, idAnimacionAgachadoIzquierda, idAnimacionSaltoIzquierda, idAnimacionCorrerDerecha, idAnimacionCorrerIzquierda;   // id de la animación
 
     let xParadoDerecha = true;
     let xParadoIzquierda = false;
@@ -21,6 +21,8 @@
     let yCaerIzquierda = false;
     let yAbajoDerecha = false;
     let yAbajoIzquierda = false;
+    let xCorrerDerecha = false;
+    let xCorrerIzquierda = false;
 
     let posicion = 0;   // Posición del array 0, 1
 
@@ -47,7 +49,9 @@
 			[636, 102], // Animación salto ascendente derecha
             [728, 102], // Animación salto descendente derecha
             [28, 202], // Animación salto ascendente izquierda
-            [124, 202] // Animación salto descendente izquierda
+            [124, 202], // Animación salto descendente izquierda
+            [16,412],[114,412],[216,412],[312,412], // Animación correr derecha
+            [414,426],[516,426],[614,426],[718,426] // Animación correr izquierda
         ]; // Posiciones del sprite donde recortar cada imagen
         this.velocidad = 7;
         this.velocidadX = 0;
@@ -163,6 +167,7 @@
         let framesParado = 3;
         let framesCaminando = 6;
         let framesAgachado = 3;
+        let framesCorriendo = 4;
     
         if (xParadoDerecha && miDD.enSuelo) { // Parado derecha
             inicial = 0;
@@ -187,6 +192,11 @@
             posicion = inicial + (posicion + 1) % framesAgachado;
             miDD.tamañoX = 36;
             miDD.tamañoY = 74;
+        } else if (xCorrerDerecha) { // Correr derecha
+            inicial = 28;
+            posicion = inicial + (posicion + 1) % framesCorriendo;
+            miDD.tamañoX = 68;
+            miDD.tamañoY = 74;
         } else if (xParadoIzquierda && miDD.enSuelo) { // Parado izquierda
             inicial = 3;
             posicion = inicial + (posicion + 1) % framesParado;
@@ -209,6 +219,11 @@
             inicial = 21;
             posicion = inicial + (posicion + 1) % framesAgachado;
             miDD.tamañoX = 50;
+            miDD.tamañoY = 74;
+        } else if (xCorrerIzquierda) { // Correr izquierda
+            inicial = 32;
+            posicion = inicial + (posicion + 1) % framesCorriendo;
+            miDD.tamañoX = 68;
             miDD.tamañoY = 74;
         }
     }      
@@ -260,6 +275,8 @@
                 break;
             // Arriba
             case 38:
+                xCorrerDerecha = false;
+                xCorrerIzquierda = false;
                 if (miDD.enSuelo) {
                     if (xParadoDerecha || xCaDerecha) {
                         xParadoDerecha = false;
@@ -269,6 +286,7 @@
                             idAnimacionSaltoDerecha = setInterval(DDanimaciones, 1000 / 4);
                         }
                     } else if (xParadoIzquierda || xCaIzquierda) {
+                        yArribaDerecha = false;
                         xParadoDerecha = false;
                         xCaDerecha = false;
                         xParadoIzquierda = false;
@@ -302,18 +320,41 @@
                     xParadoDerecha = false;
                     yAbajoDerecha = true;
                     if (!idAnimacionAgachadoDerecha) {
-                        clearInterval(idAnimacionAgachadoDerecha);
                         idAnimacionAgachadoDerecha = setInterval(DDanimaciones, 1000 / 4);
                     }
                 } else if (xParadoIzquierda) {
                     xParadoIzquierda = false;
                     yAbajoIzquierda = true;
                     if (!idAnimacionAgachadoIzquierda) {
-                        clearInterval(idAnimacionAgachadoIzquierda);
                         idAnimacionAgachadoIzquierda = setInterval(DDanimaciones, 1000 / 4);
                     }
                 }
                 break;
+            // Correr
+            case 88:
+                if (miDD.enSuelo) {
+                    if (xParadoDerecha || xParadoIzquierda) {
+                        miDD.velocidad = 12;
+                    } else if (xCaDerecha) {
+                        xCorrerDerecha = true;
+                        xCorrerIzquierda = false;
+                        miDD.velocidad = 12;
+                        if (!idAnimacionCorrerDerecha) {
+                            idAnimacionCorrerDerecha = setInterval(DDanimaciones, 1000 / 10);
+                        }
+                    } else if (xCaIzquierda) {
+                        xCorrerIzquierda = true;
+                        xCorrerDerecha = false;
+                        miDD.velocidad = 12;
+                        if (!idAnimacionCorrerIzquierda) {
+                            idAnimacionCorrerIzquierda = setInterval(DDanimaciones, 1000 / 10);
+                        }
+                    }
+                } else {
+                    miDD.velocidad = 7;
+                    xCorrerDerecha = false;
+                    xCorrerIzquierda = false;
+                }
         }
     }
 
@@ -332,7 +373,7 @@
                     xParadoDerecha = true;
                 }
                 xParadoIzquierda = false;
-                xParadoDerecha = !xCaIzquierda && !yArribaDerecha && !yAbajoDerecha;
+                xParadoDerecha = true;
                 break;
             // Izquierda
             case 37:
@@ -358,14 +399,24 @@
                 break;
             // Arriba
             case 38:
-                yArribaDerecha = false;
-                yArribaIzquierda = false;
-                if (!miDD.enSuelo && miDD.velocidadY >= -5 && yArribaDerecha) {
-                    yCaerDerecha = true;
-                    yArribaDerecha = false;
-                } else if (!miDD.enSuelo && miDD.velocidadY >= -5 && yArribaIzquierda) {
-                    yCaerIzquierda = true;
-                    yArribaIzquierda = false;
+                xCorrerDerecha = false;
+                xCorrerIzquierda = false;
+                if (!miDD.enSuelo && miDD.velocidadY >= -5) {
+                    if (yArribaDerecha) {
+                        yArribaDerecha = false;
+                        yCaerIzquierda = false;
+                        yCaerDerecha = true;
+                        if (!idAnimacionSaltoDerecha) {
+                            idAnimacionSaltoDerecha = setInterval(DDanimaciones, 1000 / 4);
+                        }
+                    } else if (yArribaIzquierda) {
+                        yArribaIzquierda = false;
+                        yCaerDerecha = false;
+                        yCaerIzquierda = true;
+                        if (!idAnimacionSaltoIzquierda) {
+                            idAnimacionSaltoIzquierda = setInterval(DDanimaciones, 1000 / 4);
+                        }
+                    }
                 } else if (!miDD.enSuelo && miDD.velocidadY >= -5 && !yArribaDerecha) {
                     clearInterval(idAnimacionSaltoDerecha);
                     idAnimacionSaltoDerecha = null;
@@ -394,6 +445,21 @@
                 }
                 xParadoDerecha = !xCaDerecha && !xCaIzquierda && !yArribaDerecha && !xParadoIzquierda;
                 break;
+            // Correr
+            case 88:
+                if (xCorrerDerecha) {
+                    xCorrerDerecha = false;
+                    xCorrerIzquierda = false;
+                    miDD.velocidad = 7;
+                    clearInterval(idAnimacionCorrerDerecha);
+                    idAnimacionCorrerDerecha = null;
+                } else if (xCorrerIzquierda) {
+                    xCorrerIzquierda = false;
+                    xCorrerDerecha = false;
+                    miDD.velocidad = 7;
+                    clearInterval(idAnimacionCorrerIzquierda);
+                    idAnimacionCorrerIzquierda = null;
+                }
         }
     }  
 
