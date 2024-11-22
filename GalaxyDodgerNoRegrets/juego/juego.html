@@ -1,20 +1,27 @@
 ﻿<!DOCTYPE html>
 
 <html>
-
   <head>
     <meta charset="utf-8">
-	<title>Galaxy Dodger: No Regrets</title>
-	<script src="juego.js"></script>
-	<link rel="stylesheet" type="text/css" href="juego.css" title="style" />
+    <title>Galaxy Dodger: No Regrets</title>
+    <script src="juego.js"></script>
+    <link rel="stylesheet" type="text/css" href="juego.css" title="style" />
   </head>
+  <body>
+    <header>
+      <h1>Galaxy Dodger: No Regrets</h1>
+    </header>
+    <main>
+      <div class="vidas">
+        <p>Vidas: <img src="assets/srpites/vidas (1).png" id="vida1"><img src="assets/srpites/vidas (1).png" id="vida2"><img src="assets/srpites/vidas (1).png" id="vida3"></p>
+      </div>
 
-<body>
+      <canvas id="miCanvas" width="600" height="600"></canvas><br>
 
-<h1>Galaxy Dodger: No Regrets</h1>
-
-<canvas id="miCanvas" width="600" height="600"></canvas>
-
-</body>
-
+      <button id="botonIniciar">Empezar a jugar</button>
+    </main>
+    <footer>
+      <p>Galaxy Dodger: No Regrets © Al Palo Devs - 2024</p>
+    </footer>
+  </body>
 </html>

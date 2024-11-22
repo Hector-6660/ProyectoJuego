@@ -9,7 +9,7 @@
     let y=466;      // posición inicial y del rectángulo
     let canvas;     // variable que referencia al elemento canvas del html
     let ctx;        // contexto de trabajo
-    let idPersonaje, idSuelo, idAnimacionDerecha, idAnimacionCaDerecha, idAnimacionAgachadoDerecha, idAnimacionSaltoDerecha, idAnimacionCaerDerecha, idAnimacionCorrerDerecha, idAnimacionIzquierda, idAnimacionCaIzquierda, idAnimacionAgachadoIzquierda, idAnimacionSaltoIzquierda, idAnimacionCaerIzquierda, idAnimacionCorrerIzquierda;   // id de la animación
+    let idPersonaje, idEnemigo1, idSuelo, idAnimacionDerecha, idAnimacionCaDerecha, idAnimacionAgachadoDerecha, idAnimacionSaltoDerecha, idAnimacionCaerDerecha, idAnimacionCorrerDerecha, idAnimacionIzquierda, idAnimacionCaIzquierda, idAnimacionAgachadoIzquierda, idAnimacionSaltoIzquierda, idAnimacionCaerIzquierda, idAnimacionCorrerIzquierda;   // id de la animación
 
     let xParadoDerecha = true;
     let xParadoIzquierda = false;
@@ -27,6 +27,7 @@
     let posicion = 0;   // Posición del array 0, 1
 
     let miDD;
+    let miEnemigo1;
     let miSuelo = {
         posicionSueloX: 0,
         posicionSueloY: 540,
@@ -60,6 +61,16 @@
         this.tamañoY   = 74;
         this.enSuelo   = false;
         this.gravedad = 2;
+    }
+
+    function Enemigo1 (x_, y_) {
+        this.x = x_;
+        this.y = y_;
+        this.animacionEnemigo1 = [];
+        this.velocidad = 5;
+        this.tamañoX = 50;
+        this.tamañoY = 50;
+        this.imagenEnemigo1;
     }
 
     DD.prototype.actualizarGravedad = function() {
@@ -148,14 +159,14 @@
         }
         if (yArribaDerecha) {
             miDD.generaPosicionArriba();
-
-        } if (xCorrerDerecha) {
+        }
+        if (xCorrerDerecha) {
             miDD.generaPosicionDerecha();
-
-        } if (xCorrerIzquierda) {
+        }
+        if (xCorrerIzquierda) {
             miDD.generaPosicionIzquierda();
-            
-        } if (yArribaIzquierda) {
+        }
+        if (yArribaIzquierda) {
             miDD.generaPosicionArriba();
         }
     
@@ -171,6 +182,26 @@
             miDD.tamañoY);         // Tamaño Y para dibujar en el canvas
     }
     
+    function pintaEnemigo1() {
+        ctx.clearRect(0, 0, 600, 600);
+
+        if (xCaDerecha) {
+            miEnemigo1.generaPosicionDerecha();
+        }
+        if (xCaIzquierda) {
+            miEnemigo1.generaPosicionIzquierda();
+        }
+
+        ctx.drawImage(miEnemigo1.imagenEnemigo1,
+            miEnemigo1.animacionEnemigo1[posicion][0],
+            miEnemigo1.animacionEnemigo1[posicion][1],
+            miEnemigo1.tamañoX,
+            miEnemigo1.tamañoY,
+            miEnemigo1.x,
+            miEnemigo1.y,
+            miEnemigo1.tamañoX,
+            miEnemigo1.tamañoY);
+    }
 
     function pintaSuelo() {
         // Pintamos el suelo
@@ -492,22 +523,27 @@
     document.addEventListener("keydown", activaMovimiento, false);
     document.addEventListener("keyup", desactivaMovimiento, false); 
 
-    // Localizamos el canvas
-    canvas = document.getElementById("miCanvas");
+    document.getElementById('botonIniciar').addEventListener('click', iniciarJuego);
 
-    // Generamos el contexto de trabajo
-    ctx = canvas.getContext("2d");
-
-    imagen = new Image();
-    imagen.src = "assets/srpites/spriteSheet.png";
-    DD.prototype.imagen = imagen;
-
-    miDD = new DD(x, y);        
-
-    // Lanzamos la animación
-    idPersonaje = setInterval(pintaRectangulo, 1000 / 30);
-    idSuelo = setInterval(pintaSuelo, 1000 / 30);   
-
-    // Animación encargada de abrir y cerrar la boca
-    idAnimacion = setInterval(DDanimaciones, 1000 / 4);
+    function iniciarJuego() {
+        canvas = document.getElementById('miCanvas');
+        ctx = canvas.getContext('2d');
+        let botonIniciar = document.getElementById('botonIniciar');
+        canvas.style.backgroundImage = "url(assets/srpites/ciudad/10.png)";
+        console.log("Juego iniciado");
+        botonIniciar.disabled = true;
+            
+        imagen = new Image();
+        imagen.src = "assets/srpites/DD/spriteSheet.png";
+        DD.prototype.imagen = imagen;
+        
+        miDD = new DD(x, y);        
+        
+        // Lanzamos la animación del personaje y del suelo
+        idPersonaje = setInterval(pintaRectangulo, 1000 / 30);
+        idSuelo = setInterval(pintaSuelo, 1000 / 30);   
+        
+        // Animación encargada de animar al personaje
+        idAnimacion = setInterval(DDanimaciones, 1000 / 4);
+    }
 }

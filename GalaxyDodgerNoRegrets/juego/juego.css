@@ -4,11 +4,19 @@
     color: white;
 }
 #miCanvas {
-    background-image: url(assets/srpites/ciudad/10.png);
+    background-image: none;
     border: inset 10px #ccc; 
     margin: 20px;
     width: 600px;
     height: 600px;
     background-size: cover;
     background-position: center center;
+}
+.vidas img {
+    width: 30px;
+    height: 30px;
+}
+footer p {
+    color: white;
+    font-size: 10px;
 }
