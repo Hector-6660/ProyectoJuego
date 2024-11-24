@@ -5,10 +5,19 @@
     <meta charset="utf-8">
     <title>Galaxy Dodger: No Regrets</title>
     <script src="juego.js"></script>
+    <script>
+      window.addEventListener("keydown", function(event) {
+        if (event.key === "ArrowUp" || event.key === "ArrowDown" || event.key === "ArrowLeft" || event.key === "ArrowRight")
+        { event.preventDefault(); }
+      });
+    </script>
     <link rel="stylesheet" type="text/css" href="juego.css" title="style" />
   </head>
   <body>
     <header>
+      <div class="logo">
+        <img src="assets/srpites/Otros/logo.png" alt="logo">
+      </div>
       <h1>Galaxy Dodger: No Regrets</h1>
     </header>
     <main>
@@ -19,9 +28,54 @@
       <canvas id="miCanvas" width="600" height="600"></canvas><br>
 
       <button id="botonIniciar">Empezar a jugar</button>
+
+      <h2>Controles</h2>
+      <table>
+        <tr>
+          <td>Derecha</td>
+          <td>→</td>
+        </tr>
+        <tr>
+          <td>Izquierda</td>
+          <td>←</td>
+        </tr>
+        <tr>
+          <td>Saltar</td>
+          <td>↑</td>
+        </tr>
+        <tr>
+          <td>Agacharse</td>
+          <td>↓</td>
+        </tr>
+        <tr>
+          <td>Correr</td>
+          <td>z + → / z + ←</td>
+        </tr>
+        <tr>
+          <td>Atacar</td>
+          <td>x</td>
+        </tr>
+      </table>
+
+      <h2>Historia</h2>
+      <h2>Más sobre Galaxy Dodger</h2>
+      <div class="informacion">
+        <table>
+          <tr>
+            <th><a href="https://play.google.com/store/apps/details?id=com.AlPaloDevs.GalaxyDodger&hl=es_UY">Galaxy Dodger</a></th>
+            <th><a href="https://www.webtoons.com/en/canvas/galaxy-dodger/list?title_no=854530">Serie de Comics</a></th>
+          </tr>
+          <tr>
+            <td><a href="https://play.google.com/store/apps/details?id=com.AlPaloDevs.GalaxyDodger&hl=es_UY"><img src="assets/srpites/Otros/Portada1PeroMuyGuapa.jpg"></a></td>
+            <td><a href="https://www.webtoons.com/en/canvas/galaxy-dodger/list?title_no=854530"><img src="assets/srpites/Otros/Portada2WT.jpg"></a></td>
+          </tr>
+        </table>
+        <p>¡Sigue a Al Palo Devs <a href="https://x.com/AlPaloDevs">aquí</a>!</p>
+      </div>
     </main>
     <footer>
       <p>Galaxy Dodger: No Regrets © Al Palo Devs - 2024</p>
+      <a href="#top">Volver arriva</a>
     </footer>
   </body>
 </html>

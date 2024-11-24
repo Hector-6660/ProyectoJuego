@@ -10,6 +10,8 @@
     let canvas;     // variable que referencia al elemento canvas del html
     let ctx;        // contexto de trabajo
     let idPersonaje, idEnemigo1, idSuelo, idAnimacionDerecha, idAnimacionCaDerecha, idAnimacionAgachadoDerecha, idAnimacionSaltoDerecha, idAnimacionCaerDerecha, idAnimacionCorrerDerecha, idAnimacionIzquierda, idAnimacionCaIzquierda, idAnimacionAgachadoIzquierda, idAnimacionSaltoIzquierda, idAnimacionCaerIzquierda, idAnimacionCorrerIzquierda;   // id de la animación
+    let idAnimacion; // id de la animación
+    let idAnimacionEnemigo1;
 
     let xParadoDerecha = true;
     let xParadoIzquierda = false;
@@ -24,16 +26,14 @@
     let xCorrerDerecha = false;
     let xCorrerIzquierda = false;
 
-    let posicion = 0;   // Posición del array 0, 1
+    let xEnemigo1Derecha = false;
+    let xEnemigo1Izquierda = false;
+
+    let posicionAnimacionDD = 0;   // Posición del array 0, 1
+    let posicionAnimacionEnemigo1 = 0; // Posición del array 0, 1
 
     let miDD;
     let miEnemigo1;
-    let miSuelo = {
-        posicionSueloX: 0,
-        posicionSueloY: 540,
-        tamañoSueloX: 600,
-        tamañoSueloY: 60,
-    };
     let imagen;
     let inicial = 0;
 
@@ -66,12 +66,31 @@
     function Enemigo1 (x_, y_) {
         this.x = x_;
         this.y = y_;
-        this.animacionEnemigo1 = [];
+        this.animacionEnemigo1 = [
+            [16,14], [116,14], [16,114], //Animación del enemigo 1 Derecha
+            [114,114], [14,214], [114,214] //Animación del enemigo 1 Izquierda
+        ];
         this.velocidad = 5;
-        this.tamañoX = 50;
-        this.tamañoY = 50;
+        this.tamañoX = 70;
+        this.tamañoY = 72;
         this.imagenEnemigo1;
+        this.direccion = 1;
     }
+
+    function Plataforma(x, y, tamañoSueloX, tamañoSueloY) {
+        this.x = x;
+        this.y = y;
+        this.tamañoSueloX = tamañoSueloX;
+        this.tamañoSueloY = tamañoSueloY;
+    }
+
+    let plataformas = [
+        new Plataforma(0, 540, 278, 60), // Suelo 1
+        new Plataforma(398, 540, 202, 60), // Suelo 2
+        new Plataforma(0, 326, 218, 40), // Plataforma 1
+        new Plataforma(380, 436, 220, 22), // Plataforma 2
+        new Plataforma(388, 186, 220, 50) // Plataforma 3
+    ];
 
     DD.prototype.actualizarGravedad = function() {
         // Aplicar gravedad
@@ -81,17 +100,18 @@
             this.x += this.velocidadX;
         }
     
-        // Verificar colisión con el suelo
-        if (this.y + this.tamañoY > miSuelo.posicionSueloY) {
-            this.y = miSuelo.posicionSueloY - this.tamañoY;
-            this.velocidadY = 0;
-            this.velocidadX = 0;
-            this.enSuelo = true;
-            yArribaDerecha = false;
-            yCaerDerecha = false;
-            yArribaIzquierda = false;
-            yCaerIzquierda = false;
-        }
+        // Verificar colisión con las plataformas
+        plataformas.forEach(plataforma => {
+            if (this.x < plataforma.x + plataforma.tamañoSueloX &&
+                this.x + this.tamañoX > plataforma.x &&
+                this.y + this.tamañoY > plataforma.y &&
+                this.y + this.tamañoY < plataforma.y + plataforma.tamañoSueloY) {
+                this.y = plataforma.y - this.tamañoY;
+                this.velocidadY = 0;
+                this.velocidadX = 0;
+                this.enSuelo = true;
+            }
+        });
     }
     
 
@@ -142,10 +162,7 @@
         }
     }
 
-    function pintaRectangulo() {
-        // Borramos el canvas
-        ctx.clearRect(0, 0, 600, 600);
-    
+    function pintaDD() {
         miDD.actualizarGravedad();
     
         if (xParadoDerecha && miDD.enSuelo) {
@@ -172,8 +189,8 @@
     
         // Pintamos el personaje
         ctx.drawImage(miDD.imagen, // Imagen completa con todos los sprites
-            miDD.animacionDD[posicion][0],    // Posicion X del sprite donde se encuentra el recorte
-            miDD.animacionDD[posicion][1],    // Posicion Y del sprite donde se encuentra el recorte
+            miDD.animacionDD[posicionAnimacionDD][0],    // Posicion X del sprite donde se encuentra el recorte
+            miDD.animacionDD[posicionAnimacionDD][1],    // Posicion Y del sprite donde se encuentra el recorte
             miDD.tamañoX,           // Tamaño X del recorte
             miDD.tamañoY,           // Tamaño Y del recorte
             miDD.x,                // Posicion x en el canvas
@@ -183,18 +200,24 @@
     }
     
     function pintaEnemigo1() {
-        ctx.clearRect(0, 0, 600, 600);
 
-        if (xCaDerecha) {
-            miEnemigo1.generaPosicionDerecha();
+        miEnemigo1.x += 4 * miEnemigo1.direccion;
+
+        if (miEnemigo1.x > TOPEDERECHA) {
+            miEnemigo1.direccion = -1;
+            xEnemigo1Derecha = false;
+            xEnemigo1Izquierda = true;
         }
-        if (xCaIzquierda) {
-            miEnemigo1.generaPosicionIzquierda();
+
+        else if (miEnemigo1.x < TOPEIZQUIERDA) {
+            miEnemigo1.direccion = 1;
+            xEnemigo1Izquierda = false;
+            xEnemigo1Derecha = true;
         }
 
         ctx.drawImage(miEnemigo1.imagenEnemigo1,
-            miEnemigo1.animacionEnemigo1[posicion][0],
-            miEnemigo1.animacionEnemigo1[posicion][1],
+            miEnemigo1.animacionEnemigo1[posicionAnimacionEnemigo1][0],
+            miEnemigo1.animacionEnemigo1[posicionAnimacionEnemigo1][1],
             miEnemigo1.tamañoX,
             miEnemigo1.tamañoY,
             miEnemigo1.x,
@@ -203,10 +226,24 @@
             miEnemigo1.tamañoY);
     }
 
-    function pintaSuelo() {
-        // Pintamos el suelo
-        ctx.fillStyle = "#FF0000";
-        ctx.fillRect(miSuelo.posicionSueloX,miSuelo.posicionSueloY,miSuelo.tamañoSueloX,miSuelo.tamañoSueloY);
+    function pintaPlataformas() {
+        ctx.fillStyle = '#FF0000';
+        plataformas.forEach(plataforma => {
+            ctx.fillRect(plataforma.x, plataforma.y, plataforma.tamañoSueloX, plataforma.tamañoSueloY);
+        });
+    }
+
+    function pintaTodo() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Pintar las plataformas
+        pintaPlataformas();
+    
+        // Pintar el enemigo
+        pintaEnemigo1();
+    
+        // Pintar el personaje
+        pintaDD();
     }
 
     function DDanimaciones() {
@@ -217,62 +254,74 @@
     
         if (xParadoDerecha && miDD.enSuelo) { // Parado derecha
             inicial = 0;
-            posicion = inicial + (posicion + 1) % framesParado;
+            posicionAnimacionDD = inicial + (posicionAnimacionDD + 1) % framesParado;
         } else if (xCaDerecha) { // Caminar derecha
             inicial = 6;
-            posicion = inicial + (posicion + 1) % framesCaminando;
+            posicionAnimacionDD = inicial + (posicionAnimacionDD + 1) % framesCaminando;
             miDD.tamañoX = 58;
             miDD.tamañoY = 74;
         } else if (yArribaDerecha && miDD.velocidadY < -5) { // Salto ascendente derecha
             inicial = 24;
-            posicion = inicial;
+            posicionAnimacionDD = inicial;
             miDD.tamañoX = 50;
             miDD.tamañoY = 84;
         } else if (yCaerDerecha && !miDD.enSuelo && miDD.velocidadY >= -5) { // Salto descendente derecha
             inicial = 25;
-            posicion = inicial;
+            posicionAnimacionDD = inicial;
             miDD.tamañoX = 50;
             miDD.tamañoY = 74;
         } else if (yAbajoDerecha) { // Agachado derecha
             inicial = 18;
-            posicion = inicial + (posicion + 1) % framesAgachado;
+            posicionAnimacionDD = inicial + (posicionAnimacionDD + 1) % framesAgachado;
             miDD.tamañoX = 36;
             miDD.tamañoY = 74;
         } else if (xCorrerDerecha) { // Correr derecha
             inicial = 28;
-            posicion = inicial + (posicion + 1) % framesCorriendo;
+            posicionAnimacionDD = inicial + (posicionAnimacionDD + 1) % framesCorriendo;
             miDD.tamañoX = 68;
             miDD.tamañoY = 74;
         } else if (xParadoIzquierda && miDD.enSuelo) { // Parado izquierda
             inicial = 3;
-            posicion = inicial + (posicion + 1) % framesParado;
+            posicionAnimacionDD = inicial + (posicionAnimacionDD + 1) % framesParado;
         } else if (xCaIzquierda) { // Caminando izquierda
             inicial = 12;
-            posicion = inicial + (posicion + 1) % framesCaminando;
+            posicionAnimacionDD = inicial + (posicionAnimacionDD + 1) % framesCaminando;
             miDD.tamañoX = 58;
             miDD.tamañoY = 74;
         } else if (yArribaIzquierda && !miDD.enSuelo && miDD.velocidadY < -5) { // Salto ascendente izquierda
             inicial = 26;
-            posicion = inicial;
+            posicionAnimacionDD = inicial;
             miDD.tamañoX = 50;
             miDD.tamañoY = 84;
         } else if (yCaerIzquierda && !miDD.enSuelo && miDD.velocidadY >= -5) { // Salto descendente izquierda
             inicial = 27;
-            posicion = inicial;
+            posicionAnimacionDD = inicial;
             miDD.tamañoX = 50;
             miDD.tamañoY = 74;
         } else if (yAbajoIzquierda) { // Agachado izquierda
             inicial = 21;
-            posicion = inicial + (posicion + 1) % framesAgachado;
+            posicionAnimacionDD = inicial + (posicionAnimacionDD + 1) % framesAgachado;
             miDD.tamañoX = 50;
             miDD.tamañoY = 74;
         } else if (xCorrerIzquierda) { // Correr izquierda
             inicial = 32;
-            posicion = inicial + (posicion + 1) % framesCorriendo;
+            posicionAnimacionDD = inicial + (posicionAnimacionDD + 1) % framesCorriendo;
             miDD.tamañoX = 68;
             miDD.tamañoY = 74;
         }
-    }      
+    }
+    
+    function Enemigo1animaciones() {
+        let framesEnemigo1 = 3;
+
+        if (xEnemigo1Derecha) {
+            inicial = 0;
+            posicionAnimacionEnemigo1 = inicial + (posicionAnimacionEnemigo1 + 1) % framesEnemigo1;
+        } else if (xEnemigo1Izquierda) {
+            inicial = 3;
+            posicionAnimacionEnemigo1 = inicial + (posicionAnimacionEnemigo1 + 1) % framesEnemigo1;
+        }
+    }
 
     function activaMovimiento(evt) {
         switch (evt.keyCode) {
@@ -378,7 +427,7 @@
                 }
                 break;
             // Correr
-            case 88:
+            case 90:
                 if (miDD.enSuelo) {
                     if (xParadoDerecha || xParadoIzquierda) {
                         miDD.velocidad = 12;
@@ -406,7 +455,6 @@
                     if (yArribaDerecha) {
                         yArribaDerecha = false;
                         yCaerDerecha = true;
-                        console.log(xCorrerDerecha);
                         if (!idAnimacionCaerDerecha) {
                             idAnimacionCaerDerecha = setInterval(DDanimaciones, 1000 / 4);
                         }
@@ -430,6 +478,7 @@
                     clearInterval(idAnimacionCaDerecha);
                     idAnimacionCaDerecha = null;
                     miDD.velocidadX = 0;
+                    xParadoDerecha = true;
                 }
                 if (!miDD.enSuelo && miDD.velocidadY >= -5) {
                     yCaerDerecha = false;
@@ -509,7 +558,7 @@
                 xParadoDerecha = !xCaDerecha && !xCaIzquierda && !yArribaDerecha && !xParadoIzquierda;
                 break;
             // Correr
-            case 88:
+            case 90:
                 xCorrerDerecha = false;
                 xCorrerIzquierda = false;
                 miDD.velocidad = 7;
@@ -529,21 +578,27 @@
         canvas = document.getElementById('miCanvas');
         ctx = canvas.getContext('2d');
         let botonIniciar = document.getElementById('botonIniciar');
-        canvas.style.backgroundImage = "url(assets/srpites/ciudad/10.png)";
+        canvas.style.backgroundImage = "url(assets/srpites/fondos/fondo1.png)";
         console.log("Juego iniciado");
         botonIniciar.disabled = true;
             
         imagen = new Image();
         imagen.src = "assets/srpites/DD/spriteSheet.png";
         DD.prototype.imagen = imagen;
+    
+        imagenEnemigo1 = new Image();
+        imagenEnemigo1.src = "assets/srpites/Enemigos/Enemigo1SpriteSheet (1).png";
+        Enemigo1.prototype.imagenEnemigo1 = imagenEnemigo1;
         
-        miDD = new DD(x, y);        
+        miDD = new DD(x, y);  
+        miEnemigo1 = new Enemigo1(500, 466);      
         
         // Lanzamos la animación del personaje y del suelo
-        idPersonaje = setInterval(pintaRectangulo, 1000 / 30);
-        idSuelo = setInterval(pintaSuelo, 1000 / 30);   
+
+        setInterval(pintaTodo, 1000 / 30);
         
         // Animación encargada de animar al personaje
         idAnimacion = setInterval(DDanimaciones, 1000 / 4);
+        idAnimacionEnemigo1 = setInterval(Enemigo1animaciones, 1000 / 3);
     }
 }
