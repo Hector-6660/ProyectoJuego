@@ -36,6 +36,14 @@
     let miEnemigo1;
     let imagen;
     let inicial = 0;
+    
+    let cancionFondo;
+
+    function reproducirCancionFondo() {
+        cancionFondo = document.getElementById("fondo");
+		cancionFondo.volume = 0.1;
+		cancionFondo.play();
+	}	
 
     function DD (x_, y_) {
         this.x = x_;
@@ -102,10 +110,10 @@
     
         // Verificar colisión con las plataformas
         plataformas.forEach(plataforma => {
-            if (this.x < plataforma.x + plataforma.tamañoSueloX &&
-                this.x + this.tamañoX > plataforma.x &&
-                this.y + this.tamañoY > plataforma.y &&
-                this.y + this.tamañoY < plataforma.y + plataforma.tamañoSueloY) {
+            if (this.x < plataforma.x + plataforma.tamañoSueloX && // No se sale de la plataforma por la derecha
+                this.x + this.tamañoX > plataforma.x && // No se sale de la plataforma por la izquierda
+                this.y + this.tamañoY > plataforma.y && // No está por encima de la superficie de la plataforma
+                this.y + this.tamañoY < plataforma.y + plataforma.tamañoSueloY) { // No está por debajo de la plataforma
                 this.y = plataforma.y - this.tamañoY;
                 this.velocidadY = 0;
                 this.velocidadX = 0;
@@ -591,10 +599,12 @@
         Enemigo1.prototype.imagenEnemigo1 = imagenEnemigo1;
         
         miDD = new DD(x, y);  
-        miEnemigo1 = new Enemigo1(500, 466);      
+        miEnemigo1 = new Enemigo1(500, 466);
+
+        reproducirCancionFondo();
         
         // Lanzamos la animación del personaje y del suelo
-
+        
         setInterval(pintaTodo, 1000 / 30);
         
         // Animación encargada de animar al personaje
