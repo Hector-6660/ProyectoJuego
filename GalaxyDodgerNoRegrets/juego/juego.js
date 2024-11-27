@@ -12,6 +12,7 @@
     let idPersonaje, idEnemigo1, idSuelo, idAnimacionDerecha, idAnimacionCaDerecha, idAnimacionAgachadoDerecha, idAnimacionSaltoDerecha, idAnimacionCaerDerecha, idAnimacionCorrerDerecha, idAnimacionIzquierda, idAnimacionCaIzquierda, idAnimacionAgachadoIzquierda, idAnimacionSaltoIzquierda, idAnimacionCaerIzquierda, idAnimacionCorrerIzquierda;   // id de la animación
     let idAnimacion; // id de la animación
     let idAnimacionEnemigo1;
+    let idIntervaloPintaTodo;
 
     let xParadoDerecha = true;
     let xParadoIzquierda = false;
@@ -39,11 +40,77 @@
     
     let cancionFondo;
 
+    let botonReiniciar = document.getElementById('botonReiniciar');
+    botonReiniciar.disabled = true;
+
+    let muerto = false;
+
+    function reiniciarJuego() {
+        miDD.x = 50;
+        miDD.y = 466;
+        miEnemigo1.x = 500;
+        miEnemigo1.y = 466;
+        
+        contador = 5;
+        actualizarContador();
+    }
+
     function reproducirCancionFondo() {
         cancionFondo = document.getElementById("fondo");
 		cancionFondo.volume = 0.1;
 		cancionFondo.play();
-	}	
+	}
+
+    let contador = 5;
+    let vidas = 3;
+
+    function actualizarContador() {
+        let contadorElemento = document.getElementById('contador');
+        contadorElemento.textContent = contador;
+
+        if (contador <= 0) {
+            quitarVida();
+            contador = 5;
+        } else if (vidas === 0) {
+            morir();
+        }
+    }
+
+    function iniciarContador() {
+        if (vidas > 0) {
+            contador--;
+            actualizarContador();
+            setTimeout(iniciarContador, 1000);
+        } else if (vidas === 0) {
+            contador = 5;
+            actualizarContador();
+        }
+    }
+
+    function quitarVida() {
+        if (vidas > 0) {
+            let vida = document.getElementById(`vida${vidas}`);
+            vida.style.visibility = 'hidden';
+            vidas--;
+            reiniciarJuego();
+            console.log(vidas);
+        }
+    }
+
+    function restablecerVidas() {
+        for (let i = 1; i <= 3; i++) {
+            let vida = document.getElementById(`vida${i}`);
+            vida.style.visibility = 'visible';
+        }
+    }
+
+    function morir() {
+        if (vidas === 0) {
+            botonReiniciar.disabled = false;
+            muerto = true;
+            console.log("Has muerto");
+        }
+    }
 
     function DD (x_, y_) {
         this.x = x_;
@@ -119,7 +186,6 @@
                 this.velocidadX = 0;
                 this.enSuelo = true;
             } else if (this.x > plataforma.x + plataforma.tamañoSueloX) {
-                this.velocidadY += this.gravedad;
                 this.enSuelo = false;
             }
         });
@@ -584,14 +650,18 @@
     document.addEventListener("keyup", desactivaMovimiento, false); 
 
     document.getElementById('botonIniciar').addEventListener('click', iniciarJuego);
+    document.getElementById('botonReiniciar').addEventListener('click', Reiniciar);
 
     function iniciarJuego() {
         canvas = document.getElementById('miCanvas');
         ctx = canvas.getContext('2d');
+        muerto = false;
         let botonIniciar = document.getElementById('botonIniciar');
         canvas.style.backgroundImage = "url(assets/srpites/fondos/fondo1.png)";
         console.log("Juego iniciado");
         botonIniciar.disabled = true;
+
+        iniciarContador();
             
         imagen = new Image();
         imagen.src = "assets/srpites/DD/spriteSheet.png";
@@ -608,10 +678,21 @@
         
         // Lanzamos la animación del personaje y del suelo
         
-        setInterval(pintaTodo, 1000 / 30);
+        idIntervaloPintaTodo = setInterval(pintaTodo, 1000 / 30);
         
         // Animación encargada de animar al personaje
         idAnimacion = setInterval(DDanimaciones, 1000 / 4);
         idAnimacionEnemigo1 = setInterval(Enemigo1animaciones, 1000 / 3);
+    }
+
+    function Reiniciar() {
+        console.log("Juego reiniciado");
+        botonReiniciar.disabled = true;
+        vidas = 3;
+        clearInterval(idAnimacion);
+        clearInterval(idAnimacionEnemigo1);
+        clearInterval(idIntervaloPintaTodo);
+        restablecerVidas();
+        iniciarJuego();
     }
 }
