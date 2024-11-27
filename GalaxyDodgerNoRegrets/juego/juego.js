@@ -110,7 +110,7 @@
     
         // Verificar colisión con las plataformas
         plataformas.forEach(plataforma => {
-            if (this.x < plataforma.x + plataforma.tamañoSueloX && // No se sale de la plataforma por la derecha
+            if (this.x + 10 < plataforma.x + plataforma.tamañoSueloX && // No se sale de la plataforma por la derecha
                 this.x + this.tamañoX > plataforma.x && // No se sale de la plataforma por la izquierda
                 this.y + this.tamañoY > plataforma.y && // No está por encima de la superficie de la plataforma
                 this.y + this.tamañoY < plataforma.y + plataforma.tamañoSueloY) { // No está por debajo de la plataforma
@@ -118,6 +118,9 @@
                 this.velocidadY = 0;
                 this.velocidadX = 0;
                 this.enSuelo = true;
+            } else if (this.x > plataforma.x + plataforma.tamañoSueloX) {
+                this.velocidadY += this.gravedad;
+                this.enSuelo = false;
             }
         });
     }
@@ -162,8 +165,8 @@
     }    
 
     DD.prototype.generaPosicionAbajo = function() {
-        if (this.y + this.tamañoY > miSuelo.posicionSueloY) {
-            this.y = miSuelo.posicionSueloY - this.tamañoY;
+        if (this.y + this.tamañoY > plataforma.y) {
+            this.y = plataforma.y - this.tamañoY;
             this.enSuelo = true;
         } else {
             this.enSuelo = false;
