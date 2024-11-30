@@ -51,7 +51,7 @@
         miEnemigo1.x = 500;
         miEnemigo1.y = 466;
         
-        contador = 5;
+        contador = 300;
         actualizarContador();
     }
 
@@ -61,7 +61,7 @@
 		cancionFondo.play();
 	}
 
-    let contador = 5;
+    let contador = 300;
     let vidas = 3;
 
     function actualizarContador() {
@@ -70,7 +70,7 @@
 
         if (contador <= 0) {
             quitarVida();
-            contador = 5;
+            contador = 300;
         } else if (vidas === 0) {
             morir();
         }
@@ -82,7 +82,7 @@
             actualizarContador();
             setTimeout(iniciarContador, 1000);
         } else if (vidas === 0) {
-            contador = 5;
+            contador = 300;
             actualizarContador();
         }
     }
@@ -161,9 +161,8 @@
 
     let plataformas = [
         new Plataforma(0, 540, 278, 60), // Suelo 1
-        new Plataforma(398, 540, 202, 60), // Suelo 2
         new Plataforma(0, 326, 218, 40), // Plataforma 1
-        new Plataforma(380, 436, 220, 22), // Plataforma 2
+        new Plataforma(380, 436, 220, 170), // Plataforma 2
         new Plataforma(388, 186, 220, 50) // Plataforma 3
     ];
 
@@ -177,7 +176,7 @@
     
         // Verificar colisión con las plataformas
         plataformas.forEach(plataforma => {
-            if (this.x + 10 < plataforma.x + plataforma.tamañoSueloX && // No se sale de la plataforma por la derecha
+            if (this.x < plataforma.x + plataforma.tamañoSueloX && // No se sale de la plataforma por la derecha
                 this.x + this.tamañoX > plataforma.x && // No se sale de la plataforma por la izquierda
                 this.y + this.tamañoY > plataforma.y && // No está por encima de la superficie de la plataforma
                 this.y + this.tamañoY < plataforma.y + plataforma.tamañoSueloY) { // No está por debajo de la plataforma
@@ -280,17 +279,19 @@
 
         miEnemigo1.x += 4 * miEnemigo1.direccion;
 
-        if (miEnemigo1.x > TOPEDERECHA) {
-            miEnemigo1.direccion = -1;
-            xEnemigo1Derecha = false;
-            xEnemigo1Izquierda = true;
-        }
+        console.log(miEnemigo1.direccion);
 
-        else if (miEnemigo1.x < TOPEIZQUIERDA) {
-            miEnemigo1.direccion = 1;
-            xEnemigo1Izquierda = false;
-            xEnemigo1Derecha = true;
-        }
+        plataformas.forEach(plataforma => {
+            if (miEnemigo1.x + miEnemigo1.tamañoX >= plataforma.x + plataforma.tamañoSueloX) {
+                miEnemigo1.direccion = -1;
+                xEnemigo1Derecha = false;
+                xEnemigo1Izquierda = true;
+            } else if (miEnemigo1.x <= plataforma.x) {
+                miEnemigo1.direccion = 1;
+                xEnemigo1Izquierda = false;
+                xEnemigo1Derecha = true;
+            }
+        });
 
         ctx.drawImage(miEnemigo1.imagenEnemigo1,
             miEnemigo1.animacionEnemigo1[posicionAnimacionEnemigo1][0],
@@ -672,7 +673,7 @@
         Enemigo1.prototype.imagenEnemigo1 = imagenEnemigo1;
         
         miDD = new DD(x, y);  
-        miEnemigo1 = new Enemigo1(500, 466);
+        miEnemigo1 = new Enemigo1(150, 466);
 
         reproducirCancionFondo();
         
