@@ -1,5 +1,3 @@
-import { plataformas, pintaPlataformas, actualizarGravedad } from './plataformas.js';
-
 const TOPEDERECHA = 570;
 const TOPEIZQUIERDA = 0;
 const TOPEABAJO = 570;

@@ -10,6 +10,7 @@ window.onload = function() {
     let idAnimacion; // id de la animación
     let idAnimacionEnemigo1;
     let idIntervaloPintaTodo;
+    let idIntervaloCaida;
 
     let xEnemigo1Derecha = false;
     let xEnemigo1Izquierda = false;
@@ -36,6 +37,7 @@ window.onload = function() {
         
         contador = 300;
         actualizarContador();
+        actualizarCaida();
     }
 
     function reproducirCancionFondo() {
@@ -56,6 +58,12 @@ window.onload = function() {
             contador = 300;
         } else if (vidas === 0) {
             morir();
+        }
+    }
+
+    function actualizarCaida() {
+        if (miDD.y > 590) {
+            quitarVida();
         }
     }
 
@@ -91,6 +99,7 @@ window.onload = function() {
         if (vidas === 0) {
             botonReiniciar.disabled = false;
             muerto = true;
+            clearInterval(idIntervaloPintaTodo);
             console.log("Has muerto");
         }
     }
@@ -188,12 +197,15 @@ window.onload = function() {
         
         inicializarDD(50, 466);  
         miEnemigo1 = new Enemigo1(150, 466);
+
+        actualizarCaida();
     
         reproducirCancionFondo();
         
         // Lanzamos la animación del personaje y del suelo
         
         idIntervaloPintaTodo = setInterval(pintaTodo, 1000 / 30);
+        idIntervaloCaida = setInterval(actualizarCaida, 1000 / 30);
         
         // Animación encargada de animar al personaje
         idAnimacion = setInterval(DDanimaciones, 1000 / 4);

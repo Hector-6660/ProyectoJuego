@@ -20,6 +20,8 @@ function pintaPlataformas(ctx) {
 }
 
 function actualizarGravedad(personaje) {
+    let plataformaActual = null;
+
     // Aplicar gravedad
     if (!personaje.enSuelo) {
         personaje.velocidadY += personaje.gravedad;
@@ -37,6 +39,15 @@ function actualizarGravedad(personaje) {
             personaje.y = plataforma.y - personaje.tamañoY;
             personaje.velocidadY = 0;
             personaje.enSuelo = true;
+            plataformaActual = plataforma;
+            console.log(plataformaActual);
+            if (personaje.plataformaActual) {
+                if (personaje.x > personaje.plataformaActual.x + personaje.plataformaActual.tamañoSueloX) {
+                    personaje.enSuelo = false;
+                } else if (personaje.x + personaje.tamañoX < personaje.plataformaActual.x) {
+                    personaje.enSuelo = false;
+                }
+            }
         }
         // Colisión inferior
         else if (personaje.x < plataforma.x + plataforma.tamañoSueloX && // Borde izquierdo del personaje no se sale por la derecha de la plataforma
@@ -64,6 +75,9 @@ function actualizarGravedad(personaje) {
             personaje.velocidadX = 0;
         }
     });
+
+    // Actualizar la plataforma actual del personaje
+    personaje.plataformaActual = plataformaActual;
 }
 
 export { Plataforma, plataformas, pintaPlataformas, actualizarGravedad };
