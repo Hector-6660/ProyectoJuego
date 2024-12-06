@@ -13,9 +13,8 @@ let plataformas = [
 ];
 
 function pintaPlataformas(ctx) {
-    ctx.fillStyle = '#FF0000';
     plataformas.forEach(plataforma => {
-        ctx.fillRect(plataforma.x, plataforma.y, plataforma.tamañoSueloX, plataforma.tamañoSueloY);
+        ctx.drawImage(plataforma.imagenPlataforma, plataforma.x, plataforma.y, plataforma.tamañoSueloX, plataforma.tamañoSueloY);
     });
 }
 
@@ -75,9 +74,6 @@ function actualizarGravedad(personaje) {
             personaje.velocidadX = 0;
         }
     });
-
-    // Actualizar la plataforma actual del personaje
-    personaje.plataformaActual = plataformaActual;
 }
 
 export { Plataforma, plataformas, pintaPlataformas, actualizarGravedad };

@@ -1,3 +1,5 @@
+import { plataformas, pintaPlataformas, actualizarGravedad } from './plataformas.js';
+
 const TOPEDERECHA = 570;
 const TOPEIZQUIERDA = 0;
 const TOPEABAJO = 570;
@@ -252,6 +254,9 @@ function activaMovimiento(evt) {
             xCorrerIzquierda = false;
             if (miDD.enSuelo) {
                 if (xParadoDerecha || xCaDerecha) {
+                    xParadoIzquierda = false;
+                    xCaIzquierda = false;
+                    yArribaIzquierda = false;
                     xParadoDerecha = false;
                     xCaDerecha = false;
                     yArribaDerecha = true;
@@ -358,7 +363,8 @@ function desactivaMovimiento(evt) {
                 xParadoDerecha = true;
             }
             if (!miDD.enSuelo && miDD.velocidadY >= -5) {
-                yCaerDerecha = false;
+                yCaerDerecha = true;
+                yCaerIzquierda = false;
                 xParadoDerecha = true;
             }
             xParadoIzquierda = false;
@@ -388,6 +394,8 @@ function desactivaMovimiento(evt) {
             break;
         // Arriba
         case 38:
+            yArribaDerecha = false;
+            yArribaIzquierda = false;
             xCorrerDerecha = false;
             xCorrerIzquierda = false;
             if (!miDD.enSuelo && miDD.velocidadY >= -5) {
@@ -446,4 +454,4 @@ function desactivaMovimiento(evt) {
     }
 }
 
-export { DD, pintaDD, DDanimaciones, activaMovimiento, desactivaMovimiento, miDD, inicializarDD };
+export { DD, pintaDD, DDanimaciones, activaMovimiento, desactivaMovimiento, miDD, inicializarDD, yArribaDerecha };

@@ -10,6 +10,7 @@
         { event.preventDefault(); }
       });
     </script>
+    <link rel="icon" type="image/png" href="assets/srpites/icono.png">
     <link rel="stylesheet" type="text/css" href="juego.css" title="style" />
   </head>
   <body>
@@ -34,6 +35,8 @@
       <button id="botonReiniciar">Volver a empezar</button>
 
       <audio id="fondo" src="assets/musica/CancionFondo.mp3" loop></audio>
+      <audio id="vidaPerdida" src="assets/musica/muerteDD.mp3"></audio>
+      <audio id="muerte" src="assets/musica/muerteAbsoluta.mp3"></audio>
 
       <h2>Controles</h2>
       <table>
@@ -56,10 +59,6 @@
         <tr>
           <td>Correr</td>
           <td>z + → / z + ←</td>
-        </tr>
-        <tr>
-          <td>Atacar</td>
-          <td>x</td>
         </tr>
       </table>
 

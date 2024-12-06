@@ -20,9 +20,12 @@ window.onload = function() {
     let imagen;
     let miEnemigo1;
     let imagenEnemigo1;
+    let imagenPlataforma;
     let inicial = 0;
     
     let cancionFondo;
+    let cancionMuerte;
+    let audioVidaPerdida;
 
     let botonReiniciar = document.getElementById('botonReiniciar');
     botonReiniciar.disabled = true;
@@ -42,8 +45,27 @@ window.onload = function() {
 
     function reproducirCancionFondo() {
         cancionFondo = document.getElementById("fondo");
+        cancionMuerte = document.getElementById("muerte");
 		cancionFondo.volume = 0.1;
 		cancionFondo.play();
+        if (muerto) {
+            cancionMuerte.volume = 0.05;
+            cancionMuerte.play();
+        } else {
+            cancionMuerte.pause();
+            cancionMuerte.currentTime = 0;
+        }
+	}
+
+    function detenerCancionFondo() {
+        cancionFondo.pause();
+        cancionFondo.currentTime = 0;
+    }
+
+    function reproducirAudio() {
+        audioVidaPerdida = document.getElementById("vidaPerdida");
+		audioVidaPerdida.play();
+        audioVidaPerdida.volume = 0.3;
 	}
 
     let contador = 300;
@@ -83,7 +105,10 @@ window.onload = function() {
             let vida = document.getElementById(`vida${vidas}`);
             vida.style.visibility = 'hidden';
             vidas--;
+            reproducirAudio();
             reiniciarJuego();
+            detenerCancionFondo();
+            reproducirCancionFondo();
             console.log(vidas);
         }
     }
@@ -99,7 +124,9 @@ window.onload = function() {
         if (vidas === 0) {
             botonReiniciar.disabled = false;
             muerto = true;
+            detenerCancionFondo();
             clearInterval(idIntervaloPintaTodo);
+            canvas.style.backgroundImage = "url(assets/srpites/fondos/pantallaGameOver.png)";
             console.log("Has muerto");
         }
     }
@@ -194,6 +221,10 @@ window.onload = function() {
         imagenEnemigo1 = new Image();
         imagenEnemigo1.src = "assets/srpites/Enemigos/Enemigo1SpriteSheet (1).png";
         Enemigo1.prototype.imagenEnemigo1 = imagenEnemigo1;
+
+        imagenPlataforma = new Image();
+        imagenPlataforma.src = "assets/srpites/fondos/transparente.png";
+        Plataforma.prototype.imagenPlataforma = imagenPlataforma;
         
         inicializarDD(50, 466);  
         miEnemigo1 = new Enemigo1(150, 466);
