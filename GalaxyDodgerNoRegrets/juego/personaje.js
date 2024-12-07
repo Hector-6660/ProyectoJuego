@@ -1,5 +1,3 @@
-import { plataformas, pintaPlataformas, actualizarGravedad } from './plataformas.js';
-
 const TOPEDERECHA = 570;
 const TOPEIZQUIERDA = 0;
 const TOPEABAJO = 570;
@@ -259,6 +257,7 @@ function activaMovimiento(evt) {
                     yArribaIzquierda = false;
                     xParadoDerecha = false;
                     xCaDerecha = false;
+                    yCaerIzquierda = false;
                     yArribaDerecha = true;
                     if (!idAnimacionSaltoDerecha) {
                         idAnimacionSaltoDerecha = setInterval(DDanimaciones, 1000 / 4);
@@ -269,6 +268,7 @@ function activaMovimiento(evt) {
                     xCaDerecha = false;
                     xParadoIzquierda = false;
                     xCaIzquierda = false;
+                    yCaerDerecha = false;
                     yArribaIzquierda = true;
                     if (!idAnimacionSaltoIzquierda) {
                         idAnimacionSaltoIzquierda = setInterval(DDanimaciones, 1000 / 4);
@@ -403,16 +403,10 @@ function desactivaMovimiento(evt) {
                     yArribaDerecha = false;
                     yCaerIzquierda = false;
                     yCaerDerecha = true;
-                    if (!idAnimacionCaerDerecha) {
-                        idAnimacionCaerDerecha = setInterval(DDanimaciones, 1000 / 4);
-                    }
                 } else if (yArribaIzquierda) {
                     yArribaIzquierda = false;
                     yCaerDerecha = false;
                     yCaerIzquierda = true;
-                    if (!idAnimacionCaerIzquierda) {
-                        idAnimacionCaerIzquierda = setInterval(DDanimaciones, 1000 / 4);
-                    }
                 }
             } else if (!miDD.enSuelo && miDD.velocidadY >= -5 && !yArribaDerecha) {
                 clearInterval(idAnimacionSaltoDerecha);
@@ -432,6 +426,7 @@ function desactivaMovimiento(evt) {
                     clearInterval(idAnimacionAgachadoDerecha);
                     idAnimacionAgachadoDerecha = null;
                 }
+                xParadoDerecha = true;
             } else if (yAbajoIzquierda) {
                 yAbajoIzquierda = false;
                 if (!yAbajoIzquierda) {

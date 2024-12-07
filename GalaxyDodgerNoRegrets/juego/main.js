@@ -1,9 +1,11 @@
+import { niveles } from './niveles.js';
 import { DD, pintaDD, DDanimaciones, activaMovimiento, desactivaMovimiento, miDD, inicializarDD} from './personaje.js';
-import { Plataforma, plataformas, pintaPlataformas, actualizarGravedad } from './plataformas.js';
+import { Enemigo1, pintaEnemigo1, Enemigo1animaciones, miEnemigo1, inicializarEnemigo } from './enemigo.js';
+import { Plataforma, plataformas, pintaPlataformas, actualizarGravedad, actualizarPosicionPersonaje } from './plataformas.js';
 
 window.onload = function() {
 
-    let x=50;        // posición inicial x del rectángulo
+    let x=0;        // posición inicial x del rectángulo
     let y=466;      // posición inicial y del rectángulo
     let canvas;     // variable que referencia al elemento canvas del html
     let ctx;        // contexto de trabajo
@@ -12,13 +14,9 @@ window.onload = function() {
     let idIntervaloPintaTodo;
     let idIntervaloCaida;
 
-    let xEnemigo1Derecha = false;
-    let xEnemigo1Izquierda = false;
-
-    let posicionAnimacionEnemigo1 = 0; // Posición del array 0, 1
+    let nivelActual = 0;
 
     let imagen;
-    let miEnemigo1;
     let imagenEnemigo1;
     let imagenPlataforma;
     let inicial = 0;
@@ -32,11 +30,47 @@ window.onload = function() {
 
     let muerto = false;
 
+    function cargarNivel(nivel) {
+        let configuracionNivel = niveles[nivel];
+        
+        canvas.style.backgroundImage = configuracionNivel.imagenFondo;
+        
+        plataformas.length = 0;
+        configuracionNivel.plataformas.forEach(plataforma => {
+            plataformas.push(plataforma);
+        });
+    
+        inicializarDD(configuracionNivel.posicionInicialPersonaje.x, configuracionNivel.posicionInicialPersonaje.y);
+    
+        if (configuracionNivel.enemigos.length > 0) {
+            configuracionNivel.enemigos.forEach(enemigo => {
+                inicializarEnemigo(enemigo.x, enemigo.y);
+            });
+        } else {
+            inicializarEnemigo(1000, 1000);
+        }
+    }
+
+    function verificarPuntoFinal() {
+        let configuracionNivel = niveles[nivelActual];
+        let puntoFinal = configuracionNivel.puntoFinal;
+        if (miDD.x < puntoFinal.x + puntoFinal.width &&
+            miDD.x + miDD.tamañoX > puntoFinal.x &&
+            miDD.y < puntoFinal.y + puntoFinal.height &&
+            miDD.y + miDD.tamañoY > puntoFinal.y) {
+            nivelActual++;
+            if (nivelActual < niveles.length) {
+                cargarNivel(nivelActual);
+            } else {
+                console.log("¡¡Victoria!!");
+                clearInterval(idIntervaloPintaTodo);
+                detenerCancionFondo();
+            }
+        }
+    }
+
     function reiniciarJuego() {
-        miDD.x = 50;
-        miDD.y = 466;
-        miEnemigo1.x = 500;
-        miEnemigo1.y = 466;
+        cargarNivel(nivelActual);
         
         contador = 300;
         actualizarContador();
@@ -124,6 +158,7 @@ window.onload = function() {
         if (vidas === 0) {
             botonReiniciar.disabled = false;
             muerto = true;
+            nivelActual = 0;
             detenerCancionFondo();
             clearInterval(idIntervaloPintaTodo);
             canvas.style.backgroundImage = "url(assets/srpites/fondos/pantallaGameOver.png)";
@@ -131,70 +166,22 @@ window.onload = function() {
         }
     }
 
-    function Enemigo1 (x_, y_) {
-        this.x = x_;
-        this.y = y_;
-        this.animacionEnemigo1 = [
-            [16,14], [116,14], [16,114], //Animación del enemigo 1 Derecha
-            [114,114], [14,214], [114,214] //Animación del enemigo 1 Izquierda
-        ];
-        this.velocidad = 5;
-        this.tamañoX = 70;
-        this.tamañoY = 72;
-        this.direccion = 1;
-    }
-    
-    function pintaEnemigo1() {
-
-        miEnemigo1.x += 4 * miEnemigo1.direccion;
-
-        plataformas.forEach(plataforma => {
-            if (miEnemigo1.x + miEnemigo1.tamañoX >= plataforma.x + plataforma.tamañoSueloX) {
-                miEnemigo1.direccion = -1;
-                xEnemigo1Derecha = false;
-                xEnemigo1Izquierda = true;
-            } else if (miEnemigo1.x <= plataforma.x) {
-                miEnemigo1.direccion = 1;
-                xEnemigo1Izquierda = false;
-                xEnemigo1Derecha = true;
-            }
-        });
-
-        ctx.drawImage(miEnemigo1.imagenEnemigo1,
-            miEnemigo1.animacionEnemigo1[posicionAnimacionEnemigo1][0],
-            miEnemigo1.animacionEnemigo1[posicionAnimacionEnemigo1][1],
-            miEnemigo1.tamañoX,
-            miEnemigo1.tamañoY,
-            miEnemigo1.x,
-            miEnemigo1.y,
-            miEnemigo1.tamañoX,
-            miEnemigo1.tamañoY);
-    }
-
     function pintaTodo() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         actualizarGravedad(miDD);
+        actualizarPosicionPersonaje(miDD);
         
         // Pintar las plataformas
         pintaPlataformas(ctx);
     
         // Pintar el enemigo
-        pintaEnemigo1();
+        pintaEnemigo1(ctx);
     
         // Pintar el personaje
         pintaDD(ctx);
-    }
-    
-    function Enemigo1animaciones() {
-        let framesEnemigo1 = 3;
 
-        if (xEnemigo1Derecha) {
-            inicial = 0;
-            posicionAnimacionEnemigo1 = inicial + (posicionAnimacionEnemigo1 + 1) % framesEnemigo1;
-        } else if (xEnemigo1Izquierda) {
-            inicial = 3;
-            posicionAnimacionEnemigo1 = inicial + (posicionAnimacionEnemigo1 + 1) % framesEnemigo1;
-        }
+        // Verificar si el personaje ha llegado al punto final del nivel
+        verificarPuntoFinal();
     }
 
     document.addEventListener("keydown", activaMovimiento, false);
@@ -225,15 +212,12 @@ window.onload = function() {
         imagenPlataforma = new Image();
         imagenPlataforma.src = "assets/srpites/fondos/transparente.png";
         Plataforma.prototype.imagenPlataforma = imagenPlataforma;
-        
-        inicializarDD(50, 466);  
-        miEnemigo1 = new Enemigo1(150, 466);
+
+        cargarNivel(nivelActual);
 
         actualizarCaida();
     
         reproducirCancionFondo();
-        
-        // Lanzamos la animación del personaje y del suelo
         
         idIntervaloPintaTodo = setInterval(pintaTodo, 1000 / 30);
         idIntervaloCaida = setInterval(actualizarCaida, 1000 / 30);

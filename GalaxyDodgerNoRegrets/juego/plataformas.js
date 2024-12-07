@@ -5,12 +5,7 @@ function Plataforma(x, y, tamañoSueloX, tamañoSueloY) {
     this.tamañoSueloY = tamañoSueloY;
 }
 
-let plataformas = [
-    new Plataforma(0, 540, 278, 60), // Suelo 1
-    new Plataforma(0, 326, 218, 40), // Plataforma 1
-    new Plataforma(380, 436, 220, 170), // Plataforma 2
-    new Plataforma(388, 186, 220, 50) // Plataforma 3
-];
+let plataformas = [];
 
 function pintaPlataformas(ctx) {
     plataformas.forEach(plataforma => {
@@ -36,17 +31,9 @@ function actualizarGravedad(personaje) {
             personaje.y + personaje.tamañoY > plataforma.y && // Borde inferior del personaje está por debajo del borde superior de la plataforma
             personaje.y + personaje.tamañoY - personaje.velocidadY <= plataforma.y) { // Borde inferior del personaje en el frame anterior está por encima del borde superior de la plataforma
             personaje.y = plataforma.y - personaje.tamañoY;
-            personaje.velocidadY = 0;
+            personaje.velocidadY = 7;
             personaje.enSuelo = true;
-            plataformaActual = plataforma;
-            console.log(plataformaActual);
-            if (personaje.plataformaActual) {
-                if (personaje.x > personaje.plataformaActual.x + personaje.plataformaActual.tamañoSueloX) {
-                    personaje.enSuelo = false;
-                } else if (personaje.x + personaje.tamañoX < personaje.plataformaActual.x) {
-                    personaje.enSuelo = false;
-                }
-            }
+            personaje.plataformaActual = plataforma;
         }
         // Colisión inferior
         else if (personaje.x < plataforma.x + plataforma.tamañoSueloX && // Borde izquierdo del personaje no se sale por la derecha de la plataforma
@@ -76,4 +63,14 @@ function actualizarGravedad(personaje) {
     });
 }
 
-export { Plataforma, plataformas, pintaPlataformas, actualizarGravedad };
+function actualizarPosicionPersonaje(personaje) {
+    if (personaje.plataformaActual) {
+        if (personaje.x + 20 > personaje.plataformaActual.x + personaje.plataformaActual.tamañoSueloX) {
+            personaje.enSuelo = false;
+        } else if (personaje.x + personaje.tamañoX - 20 < personaje.plataformaActual.x) {
+            personaje.enSuelo = false;
+        }
+    }
+}
+
+export { Plataforma, plataformas, pintaPlataformas, actualizarGravedad, actualizarPosicionPersonaje };
