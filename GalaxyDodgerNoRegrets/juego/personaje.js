@@ -27,6 +27,49 @@ function inicializarDD(x, y) {
     miDD = new DD(x, y);
 }
 
+function reiniciarDD() {
+    xParadoDerecha = true;
+    xParadoIzquierda = false;
+    xCaDerecha = false;
+    xCaIzquierda = false;
+    yArribaDerecha = false;
+    yCaerDerecha = false;
+    yArribaIzquierda = false;
+    yCaerIzquierda = false;
+    yAbajoDerecha = false;
+    yAbajoIzquierda = false;
+    xCorrerDerecha = false;
+    xCorrerIzquierda = false;
+    miDD.velocidadX = 0; // Restablecer la velocidad horizontal del personaje
+    miDD.velocidadY = 0; // Restablecer la velocidad vertical del personaje
+
+    // Detener cualquier animación en curso
+    clearInterval(idAnimacionDerecha);
+    clearInterval(idAnimacionCaDerecha);
+    clearInterval(idAnimacionAgachadoDerecha);
+    clearInterval(idAnimacionSaltoDerecha);
+    clearInterval(idAnimacionCaerDerecha);
+    clearInterval(idAnimacionCorrerDerecha);
+    clearInterval(idAnimacionIzquierda);
+    clearInterval(idAnimacionCaIzquierda);
+    clearInterval(idAnimacionAgachadoIzquierda);
+    clearInterval(idAnimacionSaltoIzquierda);
+    clearInterval(idAnimacionCaerIzquierda);
+    clearInterval(idAnimacionCorrerIzquierda);
+    idAnimacionDerecha = null;
+    idAnimacionCaDerecha = null;
+    idAnimacionAgachadoDerecha = null;
+    idAnimacionSaltoDerecha = null;
+    idAnimacionCaerDerecha = null;
+    idAnimacionCorrerDerecha = null;
+    idAnimacionIzquierda = null;
+    idAnimacionCaIzquierda = null;
+    idAnimacionAgachadoIzquierda = null;
+    idAnimacionSaltoIzquierda = null;
+    idAnimacionCaerIzquierda = null;
+    idAnimacionCorrerIzquierda = null;
+}
+
 function DD (x_, y_) {
     this.x = x_;
     this.y = y_;
@@ -449,4 +492,4 @@ function desactivaMovimiento(evt) {
     }
 }
 
-export { DD, pintaDD, DDanimaciones, activaMovimiento, desactivaMovimiento, miDD, inicializarDD, yArribaDerecha };
+export { DD, pintaDD, DDanimaciones, activaMovimiento, desactivaMovimiento, miDD, inicializarDD, reiniciarDD };

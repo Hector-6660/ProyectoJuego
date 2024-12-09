@@ -1,5 +1,5 @@
 import { niveles } from './niveles.js';
-import { DD, pintaDD, DDanimaciones, activaMovimiento, desactivaMovimiento, miDD, inicializarDD} from './personaje.js';
+import { DD, pintaDD, DDanimaciones, activaMovimiento, desactivaMovimiento, miDD, inicializarDD, reiniciarDD } from './personaje.js';
 import { Enemigo1, pintaEnemigo1, Enemigo1animaciones, miEnemigo1, inicializarEnemigo } from './enemigo.js';
 import { Plataforma, plataformas, pintaPlataformas, actualizarGravedad, actualizarPosicionPersonaje } from './plataformas.js';
 
@@ -23,12 +23,16 @@ window.onload = function() {
     
     let cancionFondo;
     let cancionMuerte;
+    let cancionVictoria;
     let audioVidaPerdida;
 
     let botonReiniciar = document.getElementById('botonReiniciar');
     botonReiniciar.disabled = true;
 
     let muerto = false;
+    let haGanado = false;
+
+    let mejoresPuntuaciones = [];
 
     function cargarNivel(nivel) {
         let configuracionNivel = niveles[nivel];
@@ -39,7 +43,7 @@ window.onload = function() {
         configuracionNivel.plataformas.forEach(plataforma => {
             plataformas.push(plataforma);
         });
-    
+
         inicializarDD(configuracionNivel.posicionInicialPersonaje.x, configuracionNivel.posicionInicialPersonaje.y);
     
         if (configuracionNivel.enemigos.length > 0) {
@@ -62,17 +66,27 @@ window.onload = function() {
             if (nivelActual < niveles.length) {
                 cargarNivel(nivelActual);
             } else {
-                console.log("¡¡Victoria!!");
-                clearInterval(idIntervaloPintaTodo);
-                detenerCancionFondo();
+                victoria();
             }
         }
     }
 
+    function victoria() {
+        haGanado = true;
+        canvas.style.backgroundImage = "url(assets/srpites/fondos/pantallaVictoria.jpg)";
+        console.log("¡¡Victoria!!");
+        botonReiniciar.disabled = false;
+        nivelActual = 0;
+        reproducirCancionFondo();
+        clearInterval(idIntervaloPintaTodo);
+        guardarPuntuacion(contador);
+        ctx.clearRect(miDD.x, miDD.y, miDD.tamañoX, miDD.tamañoY);
+    }
+
     function reiniciarJuego() {
+        reiniciarDD();
+    
         cargarNivel(nivelActual);
-        
-        contador = 300;
         actualizarContador();
         actualizarCaida();
     }
@@ -80,14 +94,22 @@ window.onload = function() {
     function reproducirCancionFondo() {
         cancionFondo = document.getElementById("fondo");
         cancionMuerte = document.getElementById("muerte");
+        cancionVictoria = document.getElementById("victoria");
 		cancionFondo.volume = 0.1;
 		cancionFondo.play();
         if (muerto) {
             cancionMuerte.volume = 0.05;
             cancionMuerte.play();
+        }else if (haGanado) {
+            cancionFondo.pause();
+            cancionVictoria.volume = 0.2;
+            cancionVictoria.play();
         } else {
+            cancionFondo.currentTime = 0;
             cancionMuerte.pause();
             cancionMuerte.currentTime = 0;
+            cancionVictoria.pause();
+            cancionVictoria.currentTime = 0;
         }
 	}
 
@@ -111,7 +133,6 @@ window.onload = function() {
 
         if (contador <= 0) {
             quitarVida();
-            contador = 300;
         } else if (vidas === 0) {
             morir();
         }
@@ -124,7 +145,7 @@ window.onload = function() {
     }
 
     function iniciarContador() {
-        if (vidas > 0) {
+        if (vidas > 0 && !haGanado) {
             contador--;
             actualizarContador();
             setTimeout(iniciarContador, 1000);
@@ -132,6 +153,23 @@ window.onload = function() {
             contador = 300;
             actualizarContador();
         }
+    }
+
+    function guardarPuntuacion(puntuacion) {
+        let nombre = prompt("¡¡Felicidades, has escapado de la pesadilla!! Introduce tu nombre:");
+        mejoresPuntuaciones.push({ nombre: nombre, puntuacion: puntuacion });
+        mejoresPuntuaciones.sort((a, b) => b.puntuacion - a.puntuacion);
+        if (mejoresPuntuaciones.length > 5) {
+            mejoresPuntuaciones.pop();
+        }
+        actualizarTablaMejoresPuntuaciones();
+    }
+    
+    function actualizarTablaMejoresPuntuaciones() {
+        mejoresPuntuaciones.forEach((entry, index) => {
+            document.getElementById(`nombre${index + 1}`).textContent = entry.nombre;
+            document.getElementById(`puntuacion${index + 1}`).textContent = entry.puntuacion;
+        });
     }
 
     function quitarVida() {
@@ -228,9 +266,12 @@ window.onload = function() {
     }
 
     function Reiniciar() {
+        reiniciarDD();
         console.log("Juego reiniciado");
         botonReiniciar.disabled = true;
         vidas = 3;
+        contador = 300;
+        haGanado = false;
         clearInterval(idAnimacion);
         clearInterval(idAnimacionEnemigo1);
         clearInterval(idIntervaloPintaTodo);
